@@ -1,1 +1,3 @@
 "browser_style":true,
+see how it work page html to create.
+faq page with know bugs.
