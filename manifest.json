@@ -2,7 +2,7 @@
 
     "manifest_version":2,
     "name":"Illegal Services Bookmarks",
-    "version":"5.0.1.7",
+    "version":"0.0.0.1",
     "description":"Create and update Illegal Services indexed websites in a single bookmark.",
     "author":"IB_U_Z_Z_A_R_Dl",
     "background":{
