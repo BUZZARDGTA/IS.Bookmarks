@@ -28,7 +28,7 @@ function addEntry(destination, name, data=null, recurse, depth=2){
     _browser.bookmarks.create({'parentId': destination, 'title': name, 'url': data});
 }
 
-chrome.runtime.onStartup.addListener(() => {
+_browser.runtime.onStartup.addListener(() => {
     let _parentId = "1"; // unsafe, might be different
     _browser.bookmarks.search(_extName, (results) => {
         if (results.length){
