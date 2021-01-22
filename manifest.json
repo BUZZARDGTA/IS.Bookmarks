@@ -26,10 +26,6 @@
             "48":"icon_48x48.png"
         },
         "default_popup":"popup.html"
-    },
-    "options_ui":{
-        "page":"popup.html",
-        "chrome_style":true
     }
 
 }
