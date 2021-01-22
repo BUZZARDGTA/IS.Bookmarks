@@ -29,7 +29,7 @@ function addEntry(destination, name, data=null, recurse, depth=2){
 }
 
 chrome.runtime.onStartup.addListener(() => {
-    let _parentId = '1'; // unsafe, might be different
+    let _parentId = null; // unsafe, might be different
     _browser.bookmarks.search(_extName, (results) => {
         if (results.length){
             _parentId = results[0].parentId;
