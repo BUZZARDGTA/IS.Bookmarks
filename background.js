@@ -1,4 +1,4 @@
-const _illsUrl   = 'https://raw.githubusercontent.com/Illegal-Services/Illegal_Services/downloads/IS.booksmark.html'
+const _illsUrl   = 'https://raw.githubusercontent.com/Illegal-Services/Illegal_Services/downloads/IS.booksmarks.html'
 const _browser   = chrome || browser;
 const _folderExp = /^(\s+)<DT><H3.*?>(.*?)<\/H3>\s\1<DL><p>([\s\S]*?)^\1<\/DL><p>/im;
 const _lineExp   = /<DT><A (?:.*?HREF="(.*?)")?.*?>(.*?)<\/.*?>/i;
