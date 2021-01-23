@@ -4,7 +4,6 @@ const _folderExp = /^(\s+)<DT><H3.*?>(.*?)<\/H3>\s\1<DL><p>([\s\S]*?)^\1<\/DL><p
 const _lineExp   = /<DT><A (?:.*?HREF="(.*?)")?.*?>(.*?)<\/.*?>/i;
 const _extName   = "Illegal Services";
 
-_browser.bookmarks.create({title:_extName});
 _browser.runtime.onStartup.addListener(createBookmarks);
 _browser.runtime.onInstalled.addListener(createBookmarks);
 
