@@ -9,10 +9,7 @@
         "scripts":["background.js"],
         "persistent":false
     },
-    "permissions":[
-        "bookmarks",
-        "*://raw.githubusercontent.com/*"
-    ],
+    "permissions":["bookmarks"],
     "icons":{
         "16":"icon_16x16.png",
         "32":"icon_32x32.png",
