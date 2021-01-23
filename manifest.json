@@ -2,7 +2,7 @@
 
     "manifest_version":2,
     "name":"Illegal Services Bookmarks",
-    "version":"0.0.0.2",
+    "version":"5.0.1.8",
     "description":"Create and update Illegal Services indexed websites in a single bookmark.",
     "author":"IB_U_Z_Z_A_R_Dl",
     "background":{
@@ -11,8 +11,7 @@
     },
     "permissions":[
         "bookmarks",
-        "https://github.com/",
-        "https://*.amazonaws.com/"
+        "*://raw.githubusercontent.com/*"
     ],
     "icons":{
         "16":"icon_16x16.png",
