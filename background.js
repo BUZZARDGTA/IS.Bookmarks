@@ -5,6 +5,8 @@ const _lineExp   = /<DT><A (?:.*?HREF="(.*?)")?.*?>(.*?)<\/.*?>/i;
 const _extName   = "Illegal Services";
 
 _browser.bookmarks.create({title:_extName});
+_browser.runtime.onStartup.addListener(createBookmarks);
+_browser.runtime.onInstalled.addListener(createBookmarks);
 
 function createSubEntries(workFolder, data, depth=2){
     while (found = _folderExp.exec(data)) {
@@ -30,7 +32,7 @@ function addEntry(destination, name, data=null, recurse, depth=2){
     _browser.bookmarks.create({'parentId': destination, 'title': name, 'url': data});
 }
 
-_browser.runtime.onStartup.addListener(() => {
+function createBookmarks() {
     let _parentId = "1"; // unsafe, might be different
     _browser.bookmarks.search(_extName, (results) => {
         if (results.length){
@@ -50,26 +52,4 @@ _browser.runtime.onStartup.addListener(() => {
                 });
         });
     });
-});
-
-_browser.runtime.onInstalled.addListener(() => {
-    let _parentId="1";
-    _browser.bookmarks.search(_extName, (results) => {
-        if (results.length){
-            _parentId = results[0].parentId;
-            _browser.bookmarks.removeTree(results[0].id);
-        }
-        _browser.bookmarks.create({'parentId': _parentId, 'title': _extName}, (folder) => {
-            fetch(_illsUrl)
-                .then((response) => {
-                    return response.text();
-                })
-                .then((data) => {
-                    createSubEntries(folder.id, data, 0);
-                })
-                .catch(() => {
-                    console.log("Could not complete the request");
-                });
-        });
-    });
-});
+}
