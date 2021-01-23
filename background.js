@@ -1,18 +1,15 @@
-const _illsUrl   = 'https://raw.githubusercontent.com/Illegal-Services/Illegal_Services/downloads/IS.booksmarks.html'
 const _browser   = chrome || browser;
-const _folderExp = /^(\s+)<DT><H3.*?>(.*?)<\/H3>\s\1<DL><p>([\s\S]*?)^\1<\/DL><p>/im;
-const _lineExp   = /<DT><A (?:.*?HREF="(.*?)")?.*?>(.*?)<\/.*?>/i;
 const _extName   = "Illegal Services";
 
 _browser.runtime.onStartup.addListener(createBookmarks);
 _browser.runtime.onInstalled.addListener(createBookmarks);
 
 function createSubEntries(workFolder, data, depth=2){
-    while (found = _folderExp.exec(data)) {
+    while (found = /^(\s+)<DT><H3.*?>(.*?)<\/H3>\s\1<DL><p>([\s\S]*?)^\1<\/DL><p>/im.exec(data)) {
         data = data.substring(found.index + found[0].length);
         addEntry(workFolder, found[2], found[3], recurse=true, depth);
     }
-    while (found = _lineExp.exec(data)) {
+    while (found = /<DT><A (?:.*?HREF="(.*?)")?.*?>(.*?)<\/.*?>/i.exec(data)) {
         data = data.substring(found.index + found[0].length);
         addEntry(workFolder, found[2], found[1]);
     }
@@ -39,7 +36,7 @@ function createBookmarks() {
             _browser.bookmarks.removeTree(results[0].id);
         }
         _browser.bookmarks.create({'parentId': _parentId, 'title': _extName}, (folder) => {
-            fetch(_illsUrl)
+            fetch('IS.booksmarks.html')
                 .then((response) => {
                     return response.text();
                 })
