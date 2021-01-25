@@ -36,7 +36,7 @@ function createBookmarks() {
             _browser.bookmarks.removeTree(results[0].id);
         }
         _browser.bookmarks.create({'parentId': _parentId, 'title': _extName}, (folder) => {
-            fetch('IS.booksmarks.html')
+            fetch('IS.bookmarks.html')
                 .then((response) => {
                     return response.text();
                 })
