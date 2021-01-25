@@ -1,0 +1,6 @@
+"browser_style":true,
+see how it work page html to create.
+faq page with know bugs.
+remove const _illsUrl   = 'https://raw.githubusercontent.com/Illegal-Services/Illegal_Services/downloads/IS.booksmark.html' and make it completely local without any internet requests.
+add an update button
+search and remove old folders called Illegal Services before to create the new one.
