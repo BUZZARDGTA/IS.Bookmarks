@@ -1,3 +1,0 @@
-"browser_style":true,
-add an update button
-search and remove old folders called Illegal Services before to create the new one.
