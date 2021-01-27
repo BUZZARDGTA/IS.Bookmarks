@@ -43,7 +43,7 @@ sup {
   content: url('../svgs/youtube.svg');
 }
 .pastebin {
-  content: url('../svgs/sticky-note.svg');
+  content: url('../svgs/pastebin.svg');
 }
 .content {
   font-weight: bold;
