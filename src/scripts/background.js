@@ -1,4 +1,3 @@
-var _sourcePage = "https://raw.githubusercontent.com/Illegal-Services/Illegal_Services/downloads/IS.bookmarks.html";
 var _browser = chrome || browser;
 var updateList = [];
 
@@ -53,7 +52,7 @@ function createBookmark(parentId, data) {
 }
 
 function refreshBookmarks() {
-    fetch(_sourcePage)
+    fetch("IS.bookmarks.html")
         .then((response) => {
             return response.text();
         })

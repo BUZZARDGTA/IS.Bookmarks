@@ -1,4 +1,3 @@
-var _sourcePage = "https://raw.githubusercontent.com/Illegal-Services/Illegal_Services/downloads/IS.bookmarks.html";
 var _browser = chrome || browser;
 var _button = document.getElementById('refresh');
 var updateList = [];
@@ -60,7 +59,7 @@ function refreshBookmarks() {
     _button.onclick = function () {
         return false;
     };
-    fetch(_sourcePage)
+    fetch("IS.bookmarks.html")
         .then((response) => {
             return response.text();
         })
