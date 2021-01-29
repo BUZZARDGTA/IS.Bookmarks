@@ -52,7 +52,7 @@ function createBookmark(parentId, data) {
 }
 
 function refreshBookmarks() {
-    fetch("IS.bookmarks.html")
+    fetch("https://raw.githubusercontent.com/Illegal-Services/Illegal_Services/downloads/IS.bookmarks.html")
         .then((response) => {
             return response.text();
         })
