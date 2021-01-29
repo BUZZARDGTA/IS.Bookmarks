@@ -59,7 +59,7 @@ function refreshBookmarks() {
     _button.onclick = function () {
         return false;
     };
-    fetch("IS.bookmarks.html")
+    fetch("https://raw.githubusercontent.com/Illegal-Services/Illegal_Services/downloads/IS.bookmarks.html")
         .then((response) => {
             return response.text();
         })
