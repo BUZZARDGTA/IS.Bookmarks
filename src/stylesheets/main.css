@@ -10,11 +10,15 @@ footer {
   font-size: 13px;
   color: #C8C8C8;
 }
-sup {
-  color: red;
+ul {
+  text-align: left;
 }
 .spaced {
   width: 400px;
+}
+.small {
+  font-size: 80%
+  color: gray;
 }
 .smaller {
   font-size: 70%
@@ -26,6 +30,9 @@ sup {
   width: 1em;
   height: 1em;
   overflow: visible;
+}
+.content {
+  font-weight: bold;
 }
 .github {
   content: url('../svgs/github.svg');
@@ -44,7 +51,4 @@ sup {
 }
 .pastebin {
   content: url('../svgs/pastebin.svg');
-}
-.content {
-  font-weight: bold;
 }

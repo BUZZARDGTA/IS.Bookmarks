@@ -6,14 +6,15 @@
     "description": "Create and update Illegal Services indexed websites in a single bookmark.",
     "author": "IB_U_Z_Z_A_R_Dl",
     "background": {
-        "scripts": ["scripts/background.js"],
+        "scripts": ["scripts/helper.js"],
         "persistent": true
     },
     "permissions": [
         "bookmarks",
+        "storage",
         "webRequest",
-        "*://.raw.githubusercontent.com/",
-        "*://.pastebin.com/"
+        "https://*.githubusercontent.com/",
+        "https://*.pastebin.com/"
     ],
     "icons": {
         "16": "icons/icon_16x16.png",
