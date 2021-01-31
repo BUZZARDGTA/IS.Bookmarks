@@ -177,10 +177,12 @@ if (typeof browser !== "undefined") {
 _storageApi.get("initialized")
     .then((initialized) => {
         if (!initialized) {
-            _storageApi.set("version", "0.0.0.0");
-            setVersion();
-            _browser.runtime.onStartup.addListener(checkVersion);
-            _storageApi.set("initialized", true);
+            _storageApi.set("version", "0.0.0.0")
+                .then(()=>{
+                    setVersion();
+                    _browser.runtime.onStartup.addListener(checkVersion);
+                    _storageApi.set("initialized", true);
+                });
         }
     });
 
