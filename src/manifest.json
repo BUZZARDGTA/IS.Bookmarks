@@ -2,18 +2,17 @@
     "manifest_version": 2,
     "name": "Illegal Services Bookmarks",
     "short_name": "IS Bookmarks",
-    "version": "1.2",
+    "version": "1.3",
     "description": "Create and update Illegal Services indexed websites in a single bookmark.",
     "author": "IB_U_Z_Z_A_R_Dl",
     "background": {
-        "scripts": ["scripts/helper.js"],
-        "persistent": true
+        "page": "setup.html"
     },
     "permissions": [
         "bookmarks",
         "storage",
-        "https://*.gitea.com/*",
-        "https://*.pastebin.com/*"
+        "https://gitea.com/*",
+        "https://pastebin.com/raw/*"
     ],
     "icons": {
         "16": "icons/icon_16x16.png",

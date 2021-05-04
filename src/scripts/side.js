@@ -1,7 +1,9 @@
+import { storageGet, checkVersion } from './helper.js'
+
 var _versionContainer = document.getElementById("version");
 
 function updateVersionString() {
-    _storageApi.get("version")
+    storageGet("version")
         .then((version) => {
             if (version == "0.0.0.0")
                 _versionContainer.innerText = "Network Error";

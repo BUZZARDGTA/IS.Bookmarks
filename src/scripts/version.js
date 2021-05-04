@@ -1,5 +1,4 @@
-const request = new Request('https://pastebin.com/raw/JB0xvJRG');
+import { getAddonVersion } from './helper.js'
 
-const url = request.url;
-const method = request.method;
-const credentials = request.credentials;
+var version_span = document.getElementById('addon_version');
+version_span.innerText = "v" + getAddonVersion();

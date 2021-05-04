@@ -1,13 +1,15 @@
-const _versionUrl = "https://pastebin.com/raw/JB0xvJRG";
-const _bookmarkUrl = "https://raw.githubusercontent.com/Illegal-Services/Illegal_Services/downloads/IS.bookmarks.html";
-const _versionRegex = /v(\d+).(\d+).(\d+).(\d+) - (\d+\/\d+\/\d+)/;
-var _browser = chrome || browser;
+import { _versionUrl, _bookmarkUrl, _versionRegex } from './constants.js'
+const _browser = chrome || browser;
+
 var updateList = [];
 
-
+export function getAddonVersion() {
+    return _browser.runtime.getManifest().version;
+}
 
 async function createSubEntries(workFolder, data, depth=2) {
     var index = 0;
+    var found;
     while (found = /^(\s+)<DT><H3.*?>(.*?)<\/H3>\s\1<DL><p>([\s\S]*?)^\1<\/DL><p>/im.exec(data)) {
         data = data.substring(found.index + found[0].length);
         addEntry(workFolder, found[2], found[3], true, depth, index);
@@ -57,7 +59,7 @@ function createBookmarks(parentId, data, successCallback) {
 
 function updateBookmarks(data, successCallback) {
     _browser.bookmarks.search({"title": "Illegal Services"}, (results) => {
-        for (result of results) {
+        for (let result of results) {
             _browser.bookmarks.removeTree(result.id);
         };
         // dispatch firefox to search for "toolbar_____"
@@ -88,15 +90,16 @@ function fetchUrl(url, callback, failCallback=()=>null) {
         });
 }
 
-function checkVersion(successCallback=()=>null, failCallback=()=>null) {
+export function checkVersion(successCallback=()=>null, failCallback=()=>null) {
     fetchUrl(_versionUrl, (data) => {
+        var versionNew;
         [, ...versionNew] = _versionRegex.exec(data);
-        dateNew = versionNew.pop();
+        var dateNew = versionNew.pop();
         versionNew = versionNew.map(x => parseInt(x));
 
         _storageApi.get("version")
             .then((versionOld) => {
-                versionOld = versionOld.split(".").map(x => parseInt(x));
+                var versionOld = versionOld.split(".").map(x => parseInt(x));
                 var performUpdate = () => {
                     fetchUrl(_bookmarkUrl, (data) => {
                         updateBookmarks(data, () => {
@@ -121,10 +124,11 @@ function checkVersion(successCallback=()=>null, failCallback=()=>null) {
     });
 }
 
-function setVersion() {
+export function setVersion() {
     fetchUrl(_versionUrl, (data) => {
+        var version;
         [, ...version] = _versionRegex.exec(data);
-        date = version.pop();
+        var date = version.pop();
         fetchUrl(_bookmarkUrl, (data) => {
             updateBookmarks(data, () => {
                 _storageApi.set("version", version.join("."));
@@ -161,8 +165,8 @@ if (typeof browser !== "undefined") {
         },
         'set': (key, value) => {
             return new Promise(function(resolve, reject) {
-                temp = {}
-                temp[key] = value
+                var temp = {};
+                temp[key] = value;
                 chrome.storage.local.set(temp, () => {
                     if (chrome.runtime.lastError)
                         reject();
@@ -174,16 +178,10 @@ if (typeof browser !== "undefined") {
     }
 }
 
-_storageApi.get("initialized")
-    .then((initialized) => {
-        if (!initialized) {
-            _storageApi.set("version", "0.0.0.0")
-                .then(()=>{
-                    setVersion();
-                    _browser.runtime.onStartup.addListener(checkVersion);
-                    _storageApi.set("initialized", true);
-                });
-        }
-    });
+export function storageGet(item) {
+    return _storageApi.get(item);
+}
 
-
+export function storageSet(item, value) {
+    return _storageApi.set(item, value);
+}

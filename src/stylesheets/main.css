@@ -31,8 +31,8 @@ ul {
 .content {
   font-weight: bold;
 }
-.github {
-  content: url('../svgs/github.svg');
+.gitea {
+  content: url('../svgs/gitea.svg');
 }
 .telegram {
   content: url('../svgs/telegram.svg');
