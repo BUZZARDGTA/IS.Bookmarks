@@ -31,21 +31,21 @@ ul {
 .content {
   font-weight: bold;
 }
-.gitea {
-  content: url('../svgs/gitea.svg');
+.github {
+  content: url('../svgs/github.svg');
 }
 .telegram {
   content: url('../svgs/telegram.svg');
 }
-.discord {
+/* .discord {
   content: url('../svgs/discord.svg');
-}
+} */
 .twitter {
   content: url('../svgs/twitter.svg');
 }
 .youtube {
   content: url('../svgs/youtube.svg');
 }
-.pastebin {
+/* .pastebin {
   content: url('../svgs/pastebin.svg');
-}
+} */
