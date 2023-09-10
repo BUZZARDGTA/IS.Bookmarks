@@ -60,8 +60,6 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
 }
 
 async function searchBookmarksWithTypeAndDepth(query, url, title, type, depth) {
-  // Search for bookmarks with the specified title
-  const bookmarks = await browser.bookmarks.search({ query, url, title });
 
   // Function to calculate the depth of a bookmark using async recursion
   function calculateDepth(nodeId, currentDepth) {
@@ -76,6 +74,9 @@ async function searchBookmarksWithTypeAndDepth(query, url, title, type, depth) {
       return calculateDepth(node.parentId, currentDepth + 1);
     });
   }
+
+  // Search for bookmarks with the specified title
+  const bookmarks = await browser.bookmarks.search({ query, url, title });
 
   // Filter the bookmarks to include only those at the specified depth and match the target type
   const filteredBookmarks = await Promise.all(
@@ -96,15 +97,44 @@ async function searchBookmarksWithTypeAndDepth(query, url, title, type, depth) {
 
 // Function to create a bookmark tree
 async function createBookmarkTree(bookmarkDb) {
-  const parentStack = ["toolbar_____"]; // Start with the Bookmarks Toolbar as the initial parent
 
-  const total = bookmarkDb.length - 1; // Removes -1 because 'index' starts from 0
-  const enumeratedDb = bookmarkDb.map((value, index) => [index, value]);
+  // Function that sends a message to the popup script indicating that the background script is currently in the process of creating the bookmark
+  function updateProgress(progress) {
+    browser.runtime.sendMessage({
+      action: "updateProgress",
+      progress
+    })
+    .catch((error) => {
+      if (error.message !== "Could not establish connection. Receiving end does not exist.") {
+        console.error(error);
+      }
+    });
+  }
+
+  // This function decodes HTML entities from a given string.
+  // This is required because when exporting bookmarks from Firefox, certain special characters (such as <, >, ", ' and &) in bookmark titles are encoded during the export process
+  function decodeHtmlEntityEncoding(string) {
+    return string.replace(/&amp;|&quot;|&#39;|&lt;|&gt;/g, function (match) {
+      switch (match) {
+        case '&lt;': return '<';
+        case '&gt;': return '>';
+        case '&quot;': return '"';
+        case '&#39;': return '\'';
+        case '&amp;': return '&';
+        default: return match;
+      }
+    });
+  }
 
   // Function to create a bookmark
   function createBookmark(index, parentId, type, title, url) {
     return browser.bookmarks.create({ index, parentId, title, type, url });
   }
+
+  const parentStack = ["toolbar_____"]; // Start with the Bookmarks Toolbar as the initial parent
+
+  const total = bookmarkDb.length - 1; // Removes -1 because 'index' starts from 0
+  const enumeratedDb = bookmarkDb.map((value, index) => [index, value]);
 
   for (const [index, entry] of enumeratedDb) {
     updateProgress(index * 100 / total);
@@ -134,32 +164,4 @@ async function createBookmarkTree(bookmarkDb) {
       await createBookmark(undefined, parentId, "separator", undefined, undefined);
     }
   }
-}
-
-// Function that sends a message to the popup script indicating that the background script is currently in the process of creating the bookmark
-function updateProgress(progress) {
-  browser.runtime.sendMessage({
-    action: "updateProgress",
-    progress
-  })
-  .catch((error) => {
-    if (error.message !== "Could not establish connection. Receiving end does not exist.") {
-      console.error(error);
-    }
-  });
-}
-
-// This function decodes HTML entities from a given string.
-// This is required because when exporting bookmarks from Firefox, certain special characters (such as <, >, ", ' and &) in bookmark titles are encoded during the export process
-function decodeHtmlEntityEncoding(string) {
-  return string.replace(/&amp;|&quot;|&#39;|&lt;|&gt;/g, function (match) {
-    switch (match) {
-      case '&lt;': return '<';
-      case '&gt;': return '>';
-      case '&quot;': return '"';
-      case '&#39;': return '\'';
-      case '&amp;': return '&';
-      default: return match;
-    }
-  });
 }
