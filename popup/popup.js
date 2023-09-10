@@ -12,11 +12,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   htmlReloadButton.addEventListener("click", reload);
 
   const urlISDatabaseAPI = "https://api.github.com/repos/Illegal-Services/IS.Bookmarks/commits?path=IS.bookmarks.json&sha=extra&per_page=1";
-  let response;
+  let jsonISDatabaseAPI;
 
-  response = await makeWebRequest(urlISDatabaseAPI);
-  if (await isResponseUp(response)) {
-    const commitDate = (await response.json())[0].commit.committer.date;
+  const responseISDatabaseAPI = await makeWebRequest(urlISDatabaseAPI);
+  if (await isResponseUp(responseISDatabaseAPI)) {
+    jsonISDatabaseAPI = await responseISDatabaseAPI.json();
+    const commitDate = jsonISDatabaseAPI[0].commit.committer.date;
 
     const options = {
       year: "numeric",
@@ -37,7 +38,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Send a message to the extension's background script to initiate the creation of the bookmark folder
     const backgroundScriptResponse = await browser.runtime.sendMessage({
-      action: "reloadButton"
+      action: "reloadButton",
+      jsonISDatabaseAPI
     });
 
     if (backgroundScriptResponse === false) {

@@ -1,3 +1,5 @@
+export { isResponseUp };
+
 async function isResponseUp(response) {
   if (
     (response === undefined)
@@ -8,5 +10,3 @@ async function isResponseUp(response) {
   }
   return true;
 }
-
-export { isResponseUp };
