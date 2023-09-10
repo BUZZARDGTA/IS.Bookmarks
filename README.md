@@ -17,7 +17,7 @@ This new version will be v1.5, it will be released publicly as soon as Firefox f
 ## [WAIT] Before releasing v1.5:
 ```
 - Not my fault but after 30 seconds of execution, the background.js stops on Firefox (it's a FF bug)
-  This can eventually be fixed later using: https://github.com/cadeyrn/bookmarks-organizer/issues/229#issuecomment-1705718886
+  This can eventually be fixed using: https://github.com/cadeyrn/bookmarks-organizer/issues/229#issuecomment-1705718886
 ```
 
 ## [TODO]:
