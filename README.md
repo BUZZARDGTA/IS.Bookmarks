@@ -25,6 +25,6 @@ This new version will be v1.5, it will be released publicly as soon as Firefox f
 - Make "Tutorial.html" text fit better all together, cuz rn it's ugly.
 - Add status of the script if it's working or not visible on the extension's icon. https://developer.mozilla.org/en-US/docs/Web/API/Badging_API
 - Add automatic update of bookmark folder on:
-  * Sheduled every hour, if SHA change from GitHub "IS.bookmarks/extra/IS.bookmarks.json" updates
+  * Sheduled every hour
 - Add Chrome, Opera, Edge browsers support.
 ```
