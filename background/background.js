@@ -1,16 +1,115 @@
+// Add an event listener for the 'onInstalled' event, which means it will run when the extension when it will be first installed
+browser.runtime.onInstalled.addListener((details) => {
+  console.log(details);
+  if (details.reason === "install") {
+    return initializeCreationOfBookmarkTree();
+  }
+
+  return false;
+});
+
+// Add an event listener for the 'onStartup' event, which means it will run when Firefox starts up or when a new browser window is opened
+browser.runtime.onStartup.addListener((details) => {
+  console.log(details);
+  if (details.reason === "startup") {
+    return initializeCreationOfBookmarkTree();
+  }
+
+  return false;
+});
+
 // Listen for incoming messages from the extension's UI "Reload" button pressed
 browser.runtime.onMessage.addListener((message) => {
-  if (message.action !== "createBookmarksTree") {
+  if (message.action === "createBookmarksTree") {
+    return initializeCreationOfBookmarkTree();
+  }
+
+  return false;
+});
+
+async function initializeCreationOfBookmarkTree() {
+  const urlRawISDatabase = "https://raw.githubusercontent.com/Illegal-Services/IS.Bookmarks/extra/IS.bookmarks.json";
+
+  let _response;
+  try {
+    _response = await fetch(urlRawISDatabase);
+  } catch (error) {
+    console.error(error);
+  }
+  const response = _response;
+
+  if (
+    (response === undefined)
+    || (!response.ok)
+    || (response.status !== 200)
+  ) {
+
     return false;
   }
 
-  return createBookmarkTree(message.bookmarkDb);
-});
+  let responseText = await response.text();
+  responseText = responseText.trim();
 
+  let _bookmarkDb;
+  try {
+    _bookmarkDb = JSON.parse(responseText);
+  } catch (error) {
+    console.error(error);
+  }
+  let bookmarkDb = _bookmarkDb;
 
-// Function to create a bookmark
-async function createBookmark(index, parentId, type, title, url) {
-  return browser.bookmarks.create({ index, parentId, title, type, url });
+  if (
+    (bookmarkDb === undefined)
+    || (!Array.isArray(bookmarkDb))
+    || (JSON.stringify(bookmarkDb[0]) !== '["FOLDER",0,"Bookmarks Toolbar"]') // Checks if the first array from the 'bookmarkDb' correctly matches the official IS bookmarks database
+  ) {
+    return false;
+  }
+
+  bookmarkDb = bookmarkDb.slice(1); // Slice the very first array which contains the "Bookmarks Toolbar" folder
+
+  // Remove previous "Illegal Services" bookmark folder(s) from depth 0, before creating the new bookmark
+  const filteredBookmarks = await searchBookmarksWithTypeAndDepth(null, null, "Illegal Services", "folder", 0);
+  for (const object of filteredBookmarks) {
+    await browser.bookmarks.removeTree(object.id);
+  }
+
+  return createBookmarkTree(bookmarkDb)
+}
+
+async function searchBookmarksWithTypeAndDepth(query, url, title, type, depth) {
+  // Search for bookmarks with the specified title
+  const bookmarks = await browser.bookmarks.search({ query, url, title });
+
+  // Function to calculate the depth of a bookmark using async recursion
+  function calculateDepth(nodeId, currentDepth) {
+    if (currentDepth > depth) {
+      return -1; // Mark bookmarks beyond the specified depth
+    }
+
+    return browser.bookmarks.get(nodeId).then((node) => {
+      if (!node.parentId) {
+        return currentDepth; // We've reached the root node
+      }
+      return calculateDepth(node.parentId, currentDepth + 1);
+    });
+  }
+
+  // Filter the bookmarks to include only those at the specified depth and match the target type
+  const filteredBookmarks = await Promise.all(
+    bookmarks.map(async (bookmark) => {
+      const bookmarkDepth = await calculateDepth(bookmark.id, 0);
+      if (bookmarkDepth === depth && bookmark.type === type) {
+        return bookmark;
+      }
+      return null;
+    })
+  );
+
+  // Remove null values (bookmarks that didn't match the criteria)
+  const validBookmarks = filteredBookmarks.filter((bookmark) => bookmark !== null);
+
+  return validBookmarks;
 }
 
 // Function to create a bookmark tree
@@ -47,6 +146,11 @@ async function createBookmarkTree(bookmarkDb) {
       await createBookmark(undefined, parentId, "separator", undefined, undefined);
     }
   }
+}
+
+// Function to create a bookmark
+async function createBookmark(index, parentId, type, title, url) {
+  return browser.bookmarks.create({ index, parentId, title, type, url });
 }
 
 // Function that sends a message to the popup script indicating that the background script is currently in the process of creating the bookmark
