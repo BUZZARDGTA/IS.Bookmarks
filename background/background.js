@@ -62,14 +62,16 @@ function updateProgress(progress) {
   });
 }
 
+// This function decodes HTML entities from a given string.
+// This is required because when exporting bookmarks from Firefox, certain special characters (such as <, >, ", ' and &) in bookmark titles are encoded during the export process
 function decodeHtmlEntityEncoding(string) {
   return string.replace(/&amp;|&quot;|&#39;|&lt;|&gt;/g, function (match) {
     switch (match) {
-      case '&amp;': return '&';
-      case '&quot;': return '"';
-      case '&#39;': return '\'';
       case '&lt;': return '<';
       case '&gt;': return '>';
+      case '&quot;': return '"';
+      case '&#39;': return '\'';
+      case '&amp;': return '&';
       default: return match;
     }
   });
