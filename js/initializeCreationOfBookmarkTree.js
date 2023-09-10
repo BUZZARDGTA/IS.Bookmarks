@@ -140,7 +140,7 @@ async function createBookmarkTree(bookmarkDb) {
     updateProgress(index * 100 / total);
 
     const type = entry[0];
-    const depth = parseInt(entry[1]);
+    const depth = entry[1];
 
     const depthToRemove = (parentStack.length - depth);
 
