@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "Illegal Services Bookmarks",
+  "short_name": "IS Bookmarks",
+  "version": "1.4",
+  "description": "Create and update Illegal Services indexed websites in a single bookmark.",
+  "developer": {
+    "name": "IB_U_Z_Z_A_R_Dl",
+    "url": "https://github.com/Illegal-Services"
+  },
+  "permissions": [
+    "bookmarks"
+  ],
+  "action": {
+    "default_title": "Illegal Services Bookmarks",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "64": "icons/icon64.png",
+      "96": "icons/icon96.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "64": "icons/icon64.png",
+    "96": "icons/icon96.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "scripts": [
+        "background/background.js"
+    ],
+    "type": "module"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{ed90fa2f-3b4c-44eb-9a42-f0baba70c45e}",
+      "strict_min_version": "112.0"
+    }
+  }
+}

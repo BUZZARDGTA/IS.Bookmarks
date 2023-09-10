@@ -1,0 +1,48 @@
+html, header, body, footer {
+  color: whitesmoke;
+  background-color: #363636;
+  text-align: center;
+}
+a {
+  text-decoration: none;
+}
+footer {
+  font-size: 13px;
+  color: #C8C8C8;
+}
+ul {
+  text-align: left;
+}
+.spaced {
+  width: 400px;
+}
+.small {
+  font-size: 80%;
+  color: gray;
+}
+.ico {
+  line-height: 1;
+  margin: 10px;
+  font-size:25px;
+  width: 1em;
+  height: 1em;
+  overflow: visible;
+}
+.content {
+  font-weight: bold;
+}
+.github {
+  content: url("../svgs/github.svg");
+}
+.telegram {
+  content: url("../svgs/telegram.svg");
+}
+.youtube {
+  content: url("../svgs/youtube.svg");
+}
+.twitch {
+  content: url("../svgs/twitch.svg");
+}
+.pastebin {
+  content: url("../svgs/pastebin.svg");
+}
