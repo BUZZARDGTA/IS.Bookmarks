@@ -9,7 +9,8 @@
     "url": "https://github.com/Illegal-Services"
   },
   "permissions": [
-    "bookmarks"
+    "bookmarks",
+    "storage"
   ],
   "action": {
     "default_title": "Illegal Services Bookmarks",

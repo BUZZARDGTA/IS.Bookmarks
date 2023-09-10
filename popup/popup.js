@@ -1,18 +1,22 @@
+import { makeWebRequest } from "../js/makeWebRequest.js";
+import { isResponseUp } from "../js/isResponseUp.js";
+
 document.addEventListener("DOMContentLoaded", async function () {
   const htmlISDbDate = document.getElementById("ISDbDate");
   const htmlReloadButton = document.getElementById("reloadButton");
 
+  // Add a message event listener for the background 'updateProgress'
   browser.runtime.onMessage.addListener(messageListener);
 
   // Add a click event listener to the 'htmlReloadButton' button
   htmlReloadButton.addEventListener("click", reload);
 
-  const urlISDbDate = "https://api.github.com/repos/Illegal-Services/IS.Bookmarks/commits?path=IS.bookmarks.json&sha=extra&per_page=1";
+  const urlISDatabaseAPI = "https://api.github.com/repos/Illegal-Services/IS.Bookmarks/commits?path=IS.bookmarks.json&sha=extra&per_page=1";
+  let response;
 
-  fetch(urlISDbDate)
-  .then(response => response.json())
-  .then(data => {
-    const commitDate = data[0].commit.committer.date;
+  response = await makeWebRequest(urlISDatabaseAPI);
+  if (await isResponseUp(response)) {
+    const commitDate = (await response.json())[0].commit.committer.date;
 
     const options = {
       year: "numeric",
@@ -25,8 +29,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const formattedDate = new Intl.DateTimeFormat("en-US", options).format(new Date(commitDate));
     htmlISDbDate.innerText = formattedDate;
-  })
-  .catch(error => console.error("Error:", error));
+  }
 
 
   async function reload() {
@@ -34,7 +37,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Send a message to the extension's background script to initiate the creation of the bookmark folder
     const backgroundScriptResponse = await browser.runtime.sendMessage({
-      action: "createBookmarksTree"
+      action: "reloadButton"
     });
 
     if (backgroundScriptResponse === false) {

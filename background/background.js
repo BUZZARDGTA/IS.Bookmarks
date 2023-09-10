@@ -1,10 +1,13 @@
+import { makeWebRequest } from "../js/makeWebRequest.js";
+import { isResponseUp } from "../js/isResponseUp.js";
+
 // Add an event listener for the 'onInstalled' event, which means it will run when the extension when it will be first installed
 browser.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install") {
-    return initializeCreationOfBookmarkTree();
+    return initializeCreationOfBookmarkTree(details.reason);
   }
 
-  return false;
+  return null;
 });
 
 // Add an event listener for the 'onStartup' event, which means it will run when Firefox starts up or when a new browser window is opened
@@ -12,43 +15,47 @@ browser.runtime.onStartup.addListener((details) => {
   // Here I couldn't find a way to check (if details.reason === "startup") so, this lines will be changed or not in release v1.6
   console.log(details);
   if (details.reason === "startup") {
-    return initializeCreationOfBookmarkTree();
+    return initializeCreationOfBookmarkTree(details.reason);
   }
 
-  return false;
+  return null;
 });
 
 // Listen for incoming messages from the extension's UI "Reload" button pressed
 browser.runtime.onMessage.addListener((message) => {
-  if (message.action === "createBookmarksTree") {
-    return initializeCreationOfBookmarkTree();
+  if (message.action === "reloadButton") {
+    return initializeCreationOfBookmarkTree(message.action);
   }
 
-  return false;
+  return null;
 });
 
-async function initializeCreationOfBookmarkTree() {
+
+async function initializeCreationOfBookmarkTree(updateType) {
+  const urlISDatabaseAPI = "https://api.github.com/repos/Illegal-Services/IS.Bookmarks/commits?path=IS.bookmarks.json&sha=extra&per_page=1";
   const urlRawISDatabase = "https://raw.githubusercontent.com/Illegal-Services/IS.Bookmarks/extra/IS.bookmarks.json";
+  let response;
 
-  let _response;
-  try {
-    _response = await fetch(urlRawISDatabase);
-  } catch (error) {
-    console.error(error);
-  }
-  const response = _response;
-
-  if (
-    (response === undefined)
-    || (!response.ok)
-    || (response.status !== 200)
-  ) {
-
+  response = await makeWebRequest(urlISDatabaseAPI);
+  if (!await isResponseUp(response)) {
     return false;
   }
 
-  let responseText = await response.text();
-  responseText = responseText.trim();
+  const storageISDatabaseSHA = (await browser.storage.local.get("ISDatabaseSHA")).ISDatabaseSHA;
+  const fetchedISDatabaseSHA = (await response.json()).sha;
+
+  if (storageISDatabaseSHA === fetchedISDatabaseSHA) {
+    if (updateType === "startup" || updateType === "scheduled") {
+      return null;
+    }
+  }
+
+  response = await makeWebRequest(urlRawISDatabase);
+  if (!await isResponseUp(response)) {
+    return false;
+  }
+
+  let responseText = (await response.text()).trim();
 
   let _bookmarkDb;
   try {
@@ -74,7 +81,9 @@ async function initializeCreationOfBookmarkTree() {
     await browser.bookmarks.removeTree(object.id);
   }
 
-  return createBookmarkTree(bookmarkDb)
+  await createBookmarkTree(bookmarkDb);
+  await browser.storage.local.set({ "ISDatabaseSHA": fetchedISDatabaseSHA });
+  return true;
 }
 
 async function searchBookmarksWithTypeAndDepth(query, url, title, type, depth) {
