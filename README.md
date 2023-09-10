@@ -14,27 +14,10 @@ The current version available on Firefox Add-ons is v1.4, it is a version writte
 However due to some bugs within these versions ([archive/Manifest-V2](https://github.com/Illegal-Services/IS.Bookmarks/tree/archive/Manifest-V2), [archive/Manifest-V3](https://github.com/Illegal-Services/IS.Bookmarks/tree/archive/Manifest-V3)), and the complexcity of the code to me; I have decided to re-write it entierely to something simpler.<br />
 This new version will be v1.5, it will be released publicly as soon as Firefox fix their [background page bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1851373) introduced in v117.0
 
-## [FIX] Before Releasing this new re-writted v1.5:
+## [WAIT] Before releasing v1.5:
 ```
 - Not my fault but after 30 seconds of execution, the background.js stops on Firefox (it's a FF bug)
   This can eventually be fixed later using: https://github.com/cadeyrn/bookmarks-organizer/issues/229#issuecomment-1705718886
-```
-
-## [TODO] Before Releasing this new re-writted v1.5:
-```
-- Make sure to translate bookmarks name from:
-
-def decode_html_entity_encoding(string: str):
-    replacements = {
-        '&amp;': '&',
-        '&quot;': '"',
-        '&#39;': '\'',
-        '&lt;': '<',
-        '&gt;': '>',
-    }
-    for chars, replacement in replacements.items():
-        string = string.replace(chars, replacement)
-    return string
 ```
 
 ## [TODO]:
