@@ -24,54 +24,6 @@ This new version will be v1.5, it will be released publicly as soon as Firefox f
 ```
 - Make sure to translate bookmarks name from:
 
-def encode_unicode_encoding(string: str, type: str):
-    if type == "path":
-        replacements = {
-            '\\\\': 'U+005C',
-            '\\/': 'U+002F',
-        }
-    else:
-        replacements = {
-            '\\': 'U+005C',
-            '/': 'U+002F',
-        }
-    replacements.update({
-        ':': 'U+003A',
-        '*': 'U+002A',
-        '?': 'U+003F',
-        '"': 'U+0022',
-        '<': 'U+003C',
-        '>': 'U+003E',
-        '|': 'U+007C',
-    })
-    for chars, replacement in replacements.items():
-        string = string.replace(chars, replacement)
-    return string
-
-def decode_unicode_encoding(string: str, type: str):
-    if type == "path":
-        replacements = {
-            'U+005C': '\\\\',
-            'U+002F': '\\/',
-        }
-    else:
-        replacements = {
-            'U+005C': '\\',
-            'U+002F': '/',
-        }
-    replacements.update({
-        'U+003A': ':',
-        'U+002A': '*',
-        'U+003F': '?',
-        'U+0022': '"',
-        'U+003C': '<',
-        'U+003E': '>',
-        'U+007C': '|',
-    })
-    for chars, replacement in replacements.items():
-        string = string.replace(chars, replacement)
-    return string
-
 def encode_html_entity_encoding(string: str):
     replacements = {
         '&': '&amp;',
@@ -92,38 +44,6 @@ def decode_html_entity_encoding(string: str):
         '&#39;': '\'',
         '&lt;': '<',
         '&gt;': '>',
-    }
-    for chars, replacement in replacements.items():
-        string = string.replace(chars, replacement)
-    return string
-
-def encode_url_encoding(string: str):
-    replacements = {
-        '%': '%25',
-        ' ': '%20',
-        '[': '%5B',
-        ']': '%5D',
-        '{': '%7B',
-        '}': '%7D',
-        '^': '%5E',
-        '`': '%60',
-        '#': '%23',
-    }
-    for chars, replacement in replacements.items():
-        string = string.replace(chars, replacement)
-    return string
-
-def decode_url_encoding(string: str):
-    replacements = {
-        '%25': '%',
-        '%20': ' ',
-        '%5B': '[',
-        '%5D': ']',
-        '%7B': '{',
-        '%7D': '}',
-        '%5E': '^',
-        '%60': '`',
-        '%23': '#',
     }
     for chars, replacement in replacements.items():
         string = string.replace(chars, replacement)
