@@ -65,11 +65,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   async function reload() {
-    // Remove previous "Illegal Services" bookmark folder(s) from depth 0
-    const filteredBookmarks = await searchBookmarksWithTypeAndDepth(null, null, "Illegal Services", "folder", 0);
-    for (const object of filteredBookmarks) {
-      await browser.bookmarks.removeTree(object.id);
-    }
 
     htmlReloadButton.className = "btn btn-secondary w-50 disabled";
 
@@ -113,6 +108,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
 
     bookmarkDb = bookmarkDb.slice(1); // Slice the very first array which contains the "Bookmarks Toolbar" folder
+
+    // Remove previous "Illegal Services" bookmark folder(s) from depth 0, before creating the new bookmark
+    const filteredBookmarks = await searchBookmarksWithTypeAndDepth(null, null, "Illegal Services", "folder", 0);
+    for (const object of filteredBookmarks) {
+      await browser.bookmarks.removeTree(object.id);
+    }
 
     // Send a message to the extension's background script to initiate the closing of tabs
     await browser.runtime.sendMessage({
