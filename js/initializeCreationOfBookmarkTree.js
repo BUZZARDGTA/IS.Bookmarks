@@ -100,6 +100,12 @@ async function createBookmarkTree(bookmarkDb) {
 
   const total = bookmarkDb.length - 1; // Removes -1 because 'index' starts from 0
   const enumeratedDb = bookmarkDb.map((value, index) => [index, value]);
+
+  // Function to create a bookmark
+  function createBookmark(index, parentId, type, title, url) {
+    return browser.bookmarks.create({ index, parentId, title, type, url });
+  }
+
   for (const [index, entry] of enumeratedDb) {
     updateProgress(index * 100 / total);
 
@@ -128,11 +134,6 @@ async function createBookmarkTree(bookmarkDb) {
       await createBookmark(undefined, parentId, "separator", undefined, undefined);
     }
   }
-}
-
-// Function to create a bookmark
-function createBookmark(index, parentId, type, title, url) {
-  return browser.bookmarks.create({ index, parentId, title, type, url });
 }
 
 // Function that sends a message to the popup script indicating that the background script is currently in the process of creating the bookmark
