@@ -1,5 +1,7 @@
 import { makeWebRequest } from "../js/makeWebRequest.js";
 import { isResponseUp } from "../js/isResponseUp.js";
+import { retrieveSettings } from "../js/retrieveSettings.js";
+import { saveSettings } from "../js/saveSettings.js";
 
 export { initializeCreationOfBookmarkTree };
 
@@ -7,7 +9,7 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
   const urlISDatabaseAPI = "https://api.github.com/repos/Illegal-Services/IS.Bookmarks/commits?path=IS.bookmarks.json&sha=extra&per_page=1";
   const urlRawISDatabase = "https://raw.githubusercontent.com/Illegal-Services/IS.Bookmarks/extra/IS.bookmarks.json";
 
-  if (jsonISDatabaseAPI === null) {
+  if (jsonISDatabaseAPI === undefined) {
     const responseISDatabaseAPI = await makeWebRequest(urlISDatabaseAPI);
     if (!await isResponseUp(responseISDatabaseAPI)) {
       return false;
@@ -15,11 +17,11 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
     jsonISDatabaseAPI = await responseISDatabaseAPI.json();
   }
 
-  const fetchedISDatabaseSHA = jsonISDatabaseAPI.sha;
-  const storageISDatabaseSHA = (await browser.storage.local.get("ISDatabaseSHA")).ISDatabaseSHA;
+  const fetchedISDatabaseSHA = jsonISDatabaseAPI[0].sha;
+  const currentISDatabaseSHA = (await retrieveSettings("currentISDatabaseSHA")).currentISDatabaseSHA;
 
-  if (fetchedISDatabaseSHA === storageISDatabaseSHA) {
-    if (updateType === "startup" || updateType === "scheduled") {
+  if (fetchedISDatabaseSHA === currentISDatabaseSHA) {
+    if (updateType === "startup") {
       return null;
     }
   }
@@ -55,7 +57,7 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
   }
 
   await createBookmarkTree(bookmarkDb);
-  await browser.storage.local.set({ "ISDatabaseSHA": fetchedISDatabaseSHA });
+  await saveSettings({ "currentISDatabaseSHA": fetchedISDatabaseSHA });
   return true;
 }
 

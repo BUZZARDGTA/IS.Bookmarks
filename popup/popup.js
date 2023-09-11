@@ -4,12 +4,19 @@ import { isResponseUp } from "../js/isResponseUp.js";
 document.addEventListener("DOMContentLoaded", async function () {
   const htmlISDbDate = document.getElementById("ISDbDate");
   const htmlReloadButton = document.getElementById("reloadButton");
+  const settingsButton = document.getElementById("settingsButton");
 
   // Add a message event listener for the background 'updateProgress'
   browser.runtime.onMessage.addListener(messageListener);
 
   // Add a click event listener to the 'htmlReloadButton' button
   htmlReloadButton.addEventListener("click", reload);
+
+  // Add a click event listener to the settings button
+  settingsButton.addEventListener("click", function () {
+    browser.tabs.create({ url:"../settings/settings.html", active: true });
+    window.close();
+  });
 
   const urlISDatabaseAPI = "https://api.github.com/repos/Illegal-Services/IS.Bookmarks/commits?path=IS.bookmarks.json&sha=extra&per_page=1";
   let jsonISDatabaseAPI;

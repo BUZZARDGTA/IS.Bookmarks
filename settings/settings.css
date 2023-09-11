@@ -1,0 +1,54 @@
+body, html {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+h1 {
+    font-size: 50px;
+}
+
+h2 {
+    font-size: 40px;
+}
+
+.settings-remove-space {
+  margin-top: -18px; /* Adjust the negative margin to control the spacing */
+}
+
+.settings-empty-space {
+  height: 16px; /* Adjust the height as needed */
+}
+
+.container {
+  width: 60%;
+  max-width: 800px;
+  padding: 10px 50px 50px; /* Reduce top padding to 20px */
+  margin: 80px auto;
+  background-color: #333;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  margin-top: 15px; /* Adjust the margin to control spacing */
+}
+
+label.checkbox span {
+  font-size: 25px;
+  position: relative;
+  margin-left: 10px; /* Add margin to create space between the checkbox and text */
+}
+
+.checkbox input {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.checkbox input:hover {
+  cursor: pointer;
+}

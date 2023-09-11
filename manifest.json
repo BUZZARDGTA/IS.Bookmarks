@@ -38,6 +38,10 @@
     ],
     "type": "module"
   },
+  "options_ui": {
+    "page": "settings/settings.html",
+    "open_in_tab": true
+  },
   "browser_specific_settings": {
     "gecko": {
       "id": "{ed90fa2f-3b4c-44eb-9a42-f0baba70c45e}",
