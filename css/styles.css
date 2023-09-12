@@ -20,6 +20,10 @@ ul {
   font-size: 80%;
   color: gray;
 }
+.is_logo {
+  width: 128px;
+  height: 128px;
+}
 .ico {
   line-height: 1;
   margin: 10px;
