@@ -31,6 +31,9 @@ ul {
 .content {
   font-weight: bold;
 }
+.illegal_services {
+  content: url("../svgs/globe.svg");
+}
 .github {
   content: url("../svgs/github.svg");
 }
@@ -42,7 +45,4 @@ ul {
 }
 .twitch {
   content: url("../svgs/twitch.svg");
-}
-.pastebin {
-  content: url("../svgs/pastebin.svg");
 }
