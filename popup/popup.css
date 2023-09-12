@@ -4,7 +4,7 @@
 }
 
 .header_IS_link a:hover {
-  color: revert; /* Change the color back to the inherited value on hover. For some reasons VSCODE say: "[CSSTree] Invalid value for `color` property". Same thing for 'revert-layer'. */
+  color: revert;
   text-decoration: underline;
 }
 
