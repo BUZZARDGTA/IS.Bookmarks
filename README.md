@@ -3,7 +3,7 @@ Create and update Illegal Services indexed websites in a single bookmark.
 
 # Preview:
 <p align="center">
-  <img src="https://github.com/Illegal-Services/IS.Bookmarks/assets/62464560/afd570df-d7e5-4502-b7bc-f96b8ba2629e" alt="Preview Image">
+  <img src="https://github.com/Illegal-Services/IS.Bookmarks/assets/62464560/8449f711-e662-4c85-896a-47163637e306" alt="Preview Image">
   <br>
   <br>
   <img src="https://github.com/Illegal-Services/IS.Bookmarks/assets/62464560/95a53fad-3eee-4a59-8ee6-ecceec303827" alt="Preview Image">
