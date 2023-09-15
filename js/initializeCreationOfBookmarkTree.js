@@ -22,7 +22,7 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
 
   if (fetchedISDatabaseSHA === currentISDatabaseSHA) {
     if (updateType === "startup") {
-      return null;
+      return;
     }
   }
 
@@ -118,11 +118,11 @@ async function createBookmarkTree(bookmarkDb) {
   function decodeHtmlEntityEncoding(string) {
     return string.replace(/&amp;|&quot;|&#39;|&lt;|&gt;/g, function (match) {
       switch (match) {
-        case '&lt;': return '<';
-        case '&gt;': return '>';
-        case '&quot;': return '"';
-        case '&#39;': return '\'';
-        case '&amp;': return '&';
+        case "&lt;": return "<";
+        case "&gt;": return ">";
+        case "&quot;": return "\"";
+        case "&#39;": return "'";
+        case "&amp;": return "&";
         default: return match;
       }
     });

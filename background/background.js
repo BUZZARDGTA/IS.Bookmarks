@@ -12,8 +12,6 @@ browser.runtime.onInstalled.addListener(async (details) => {
 
     return initializeCreationOfBookmarkTree(details.reason);
   }
-
-  return;
 });
 
 // Add an event listener for the 'onStartup' event, which means it will run when Firefox starts up or when a new browser window is opened
@@ -25,8 +23,6 @@ browser.runtime.onStartup.addListener(async (details) => {
       return initializeCreationOfBookmarkTree(details.reason);
     }
   }
-
-  return;
 });
 
 // Listen for incoming messages from the extension's UI "Reload" button pressed
@@ -34,6 +30,4 @@ browser.runtime.onMessage.addListener((message) => {
   if (message.action === "reloadButton") {
     return initializeCreationOfBookmarkTree(message.action, message.jsonISDatabaseAPI);
   }
-
-  return;
 });
