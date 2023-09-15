@@ -160,7 +160,7 @@ async function createBookmarkTree(bookmarkDb) {
       parentStack.push(newFolder.id); // Use the ID of the newly created folder
     } else if (type === "LINK") {
       const url = entry[2];
-      const title = entry[3];
+      const title = await decodeHtmlEntityEncoding(entry[3]);
       await createBookmark(undefined, parentId, "bookmark", title, url);
     } else if (type === "HR") {
       await createBookmark(undefined, parentId, "separator", undefined, undefined);
