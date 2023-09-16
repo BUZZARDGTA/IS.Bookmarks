@@ -1,33 +1,37 @@
-.header_IS_link a {
+.main.container {
+  width: 400px;
+}
+
+.header-link a {
   color: inherit;
   text-decoration: underline;
 }
-
-.header_IS_link a:hover {
+.header-link a:hover {
   color: revert;
   text-decoration: underline;
 }
 
-.button-container {
-  display: flex;
-  padding-bottom: 7px;
+.db-last-updated-container {
+  color: #808080;
+  font-size: 80%;
 }
 
-#reloadButton {
-  margin-left: 74px;
+.buttons-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 7px;
 }
 
 #settingsButton {
   margin-top: 4px;
   margin-left: 18px;
 }
-
 #settingsButton img {
   width: 26px;
   height: 26px;
 }
-
-#settingsButton:hover img {
+#settingsButton img:hover {
   filter: brightness(100);
   cursor: pointer;
 }

@@ -1,29 +1,29 @@
+/* Global CSS file used for styling the different pages of the website */
+
 html, header, body, footer {
-  color: whitesmoke;
+  color: #ffffff;
   background-color: #363636;
   text-align: center;
 }
+
 a {
   text-decoration: none;
 }
+
 footer {
   font-size: 13px;
-  color: #C8C8C8;
+  color: #c8c8c8;
 }
-ul {
-  text-align: left;
+
+.content {
+  font-weight: bold;
 }
-.spaced {
-  width: 400px;
-}
-.small {
-  font-size: 80%;
-  color: gray;
-}
-.is_logo {
+
+.illegal-services-logo {
   width: 128px;
   height: 128px;
 }
+
 .ico {
   line-height: 1;
   margin: 10px;
@@ -32,21 +32,18 @@ ul {
   height: 1em;
   overflow: visible;
 }
-.content {
-  font-weight: bold;
-}
-.illegal_services {
+.ico.illegal-services {
   content: url("../svgs/globe.svg");
 }
-.github {
+.ico.github {
   content: url("../svgs/github.svg");
 }
-.telegram {
+.ico.telegram {
   content: url("../svgs/telegram.svg");
 }
-.youtube {
+.ico.youtube {
   content: url("../svgs/youtube.svg");
 }
-.twitch {
+.ico.twitch {
   content: url("../svgs/twitch.svg");
 }
