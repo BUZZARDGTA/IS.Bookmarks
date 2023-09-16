@@ -27,15 +27,17 @@ document.addEventListener("DOMContentLoaded", async function () {
     const commitDate = jsonISDatabaseAPI[0].commit.committer.date;
 
     const options = {
-      year: "numeric",
-      month: "2-digit",
       day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
       hour: "numeric",
       minute: "2-digit",
-      hour12: true,
+      hour12: false,
+      timeZoneName: "short",
+      timeZone: "Europe/Paris",
     };
 
-    const formattedDate = new Intl.DateTimeFormat("en-US", options).format(new Date(commitDate));
+    const formattedDate = new Intl.DateTimeFormat("fr-FR", options).format(new Date(commitDate));
     htmlISDbDate.innerText = formattedDate;
   }
 
