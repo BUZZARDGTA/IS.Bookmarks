@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", async function () {
   Subsequently, the HTML interface enables users to toggle checkboxes, and event listeners respond to these.
   */
   const currentSettings = await retrieveSettings();
-  console.log(currentSettings)
   checkboxUpdateBookmarksAtBrowserStartup.checked = typeof currentSettings.updateBookmarksAtBrowserStartup === 'boolean' ? currentSettings.updateBookmarksAtBrowserStartup : false;
 
   // Add event listeners for checkbox changes on the HTML settings page
