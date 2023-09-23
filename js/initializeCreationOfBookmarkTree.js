@@ -1,7 +1,9 @@
-import { makeWebRequest } from "../js/makeWebRequest.js";
-import { isResponseUp } from "../js/isResponseUp.js";
-import { retrieveSettings } from "../js/retrieveSettings.js";
-import { saveSettings } from "../js/saveSettings.js";
+import { makeWebRequest } from "./makeWebRequest.js";
+import { isResponseUp } from "./isResponseUp.js";
+import { retrieveSettings } from "./retrieveSettings.js";
+import { extensionMessageSender } from "./extensionMessageSender.js"
+import { saveSettings } from "./saveSettings.js";
+import { formatDate } from "./formatDate.js";
 
 export { initializeCreationOfBookmarkTree };
 
@@ -57,7 +59,13 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
   }
 
   await createBookmarkTree(bookmarkDb);
+
   await saveSettings({ "currentISDatabaseSHA": fetchedISDatabaseSHA });
+
+  const formattedDate = formatDate();
+  await saveSettings({ "databaseLastImportedDate": formattedDate });
+  extensionMessageSender("updateISDbLastImportedDate", { formattedDate: formattedDate });
+
   return true;
 }
 
@@ -100,19 +108,6 @@ async function searchBookmarksWithTypeAndDepth(query, url, title, type, depth) {
 // Function to create a bookmark tree
 async function createBookmarkTree(bookmarkDb) {
 
-  // Function that sends a message to the popup script indicating that the background script is currently in the process of creating the bookmark
-  function updateProgress(progress) {
-    browser.runtime.sendMessage({
-      action: "updateProgress",
-      progress
-    })
-    .catch((error) => {
-      if (error.message !== "Could not establish connection. Receiving end does not exist.") {
-        console.error(error);
-      }
-    });
-  }
-
   // This function decodes HTML entities from a given string.
   // This is required because when exporting bookmarks from Firefox, certain special characters (such as <, >, ", ' and &) in bookmark titles are encoded during the export process
   function decodeHtmlEntityEncoding(string) {
@@ -139,7 +134,7 @@ async function createBookmarkTree(bookmarkDb) {
   const enumeratedDb = bookmarkDb.map((value, index) => [index, value]);
 
   for (const [index, entry] of enumeratedDb) {
-    updateProgress(index * 100 / total);
+    extensionMessageSender("updateProgress", {progress: index * 100 / total }); // Sends a message to the popup script indicating that the background script is currently in the process of creating the bookmark
 
     const type = entry[0];
     const depth = entry[1];

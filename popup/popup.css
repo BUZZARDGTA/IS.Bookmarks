@@ -11,9 +11,12 @@
   text-decoration: underline;
 }
 
-.db-last-updated-container {
+.db-last-updated-imported-container {
   color: #808080;
   font-size: 80%;
+}
+.db-last-imported {
+  margin-top: -10px;
 }
 
 .buttons-container {
