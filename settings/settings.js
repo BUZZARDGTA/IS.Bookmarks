@@ -9,8 +9,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   This initialize HTML checkboxes to match internal storage values.
   Subsequently, the HTML interface enables users to toggle checkboxes, and event listeners respond to these.
   */
-  const currentSettings = await retrieveSettings();
-  checkboxUpdateBookmarksAtBrowserStartup.checked = typeof currentSettings.updateBookmarksAtBrowserStartup === 'boolean' ? currentSettings.updateBookmarksAtBrowserStartup : false;
+  const settings = await retrieveSettings();
+  checkboxUpdateBookmarksAtBrowserStartup.checked = typeof settings.updateBookmarksAtBrowserStartup === 'boolean' ? settings.updateBookmarksAtBrowserStartup : false;
 
   // Add event listeners for checkbox changes on the HTML settings page
   addCheckboxChangeListener(checkboxUpdateBookmarksAtBrowserStartup, "updateBookmarksAtBrowserStartup");

@@ -1,7 +1,7 @@
 export { extensionMessageSender };
 
 function extensionMessageSender(actionMessage, payload) {
-  browser.runtime.sendMessage({
+  return browser.runtime.sendMessage({
     action: actionMessage,
     payload
   })

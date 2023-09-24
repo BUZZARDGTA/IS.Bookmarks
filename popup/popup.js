@@ -44,9 +44,8 @@ document.addEventListener("DOMContentLoaded", async function () {
     reloadButton.className = "btn btn-secondary w-50 disabled";
 
     // Send a message to the extension's background script to initiate the creation of the bookmark folder
-    extensionMessageSender("reloadButton", jsonISDatabaseAPI);
-
-    if (backgroundScriptResponse === false) {
+    const backgroundScriptResponse = await extensionMessageSender("reloadButton", jsonISDatabaseAPI);
+    if (backgroundScriptResponse !== true) {
       reloadButton.innerText = "FAIL";
       reloadButton.className = "btn btn-danger w-50 disabled";
     }

@@ -20,9 +20,9 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
   }
 
   const fetchedISDatabaseSHA = jsonISDatabaseAPI[0].sha;
-  const currentISDatabaseSHA = (await retrieveSettings("currentISDatabaseSHA")).currentISDatabaseSHA;
+  const settingISDatabaseSHA = (await retrieveSettings("settingISDatabaseSHA")).settingISDatabaseSHA;
 
-  if (fetchedISDatabaseSHA === currentISDatabaseSHA) {
+  if (fetchedISDatabaseSHA === settingISDatabaseSHA) {
     if (updateType === "startup") {
       return;
     }
@@ -60,10 +60,10 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
 
   const formattedDate = await createBookmarkTree(bookmarkDb);
 
-  await saveSettings({ "currentISDatabaseSHA": fetchedISDatabaseSHA });
+  await saveSettings({ "settingISDatabaseSHA": fetchedISDatabaseSHA });
   await saveSettings({ "settingISDbLastImportedDate": formattedDate });
 
-  return true;
+  return true; // Tells the 'Reload' button that the script succeeded
 }
 
 async function searchBookmarksWithTypeAndDepth(query, url, title, type, depth) {
