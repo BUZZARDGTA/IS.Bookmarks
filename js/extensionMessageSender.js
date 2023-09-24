@@ -1,9 +1,9 @@
 export { extensionMessageSender };
 
-function extensionMessageSender(actionMessage, optionalMessage) {
+function extensionMessageSender(actionMessage, payload) {
   browser.runtime.sendMessage({
     action: actionMessage,
-    optionalMessage
+    payload
   })
   .catch((error) => {
     if (error.message !== "Could not establish connection. Receiving end does not exist.") {

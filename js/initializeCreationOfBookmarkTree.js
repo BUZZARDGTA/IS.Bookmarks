@@ -58,13 +58,10 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
     await browser.bookmarks.removeTree(object.id);
   }
 
-  await createBookmarkTree(bookmarkDb);
+  const formattedDate = await createBookmarkTree(bookmarkDb);
 
   await saveSettings({ "currentISDatabaseSHA": fetchedISDatabaseSHA });
-
-  const formattedDate = formatDate();
-  await saveSettings({ "databaseLastImportedDate": formattedDate });
-  extensionMessageSender("updateISDbLastImportedDate", { formattedDate: formattedDate });
+  await saveSettings({ "settingISDbLastImportedDate": formattedDate });
 
   return true;
 }
@@ -128,17 +125,20 @@ async function createBookmarkTree(bookmarkDb) {
     return browser.bookmarks.create({ index, parentId, title, type, url });
   }
 
+  const formattedDate = formatDate();
   const parentStack = ["toolbar_____"]; // Start with the Bookmarks Toolbar as the initial parent
-
   const total = bookmarkDb.length - 1; // Removes -1 because 'index' starts from 0
   const enumeratedDb = bookmarkDb.map((value, index) => [index, value]);
 
   for (const [index, entry] of enumeratedDb) {
-    extensionMessageSender("updateProgress", {progress: index * 100 / total }); // Sends a message to the popup script indicating that the background script is currently in the process of creating the bookmark
+    // Sends a message to the popup script indicating that the background script is currently in the process of creating the bookmark
+    extensionMessageSender("updateProgress", {
+      updateISDbLastImportedDate: formattedDate,
+      progress: index * 100 / total
+    });
 
     const type = entry[0];
     const depth = entry[1];
-
     const depthToRemove = (parentStack.length - depth);
 
     if (depthToRemove > 0) {
@@ -161,4 +161,6 @@ async function createBookmarkTree(bookmarkDb) {
       await createBookmark(undefined, parentId, "separator", undefined, undefined);
     }
   }
+
+  return formattedDate;
 }

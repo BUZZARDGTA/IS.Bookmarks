@@ -2,6 +2,7 @@ import { makeWebRequest } from "../js/makeWebRequest.js";
 import { isResponseUp } from "../js/isResponseUp.js";
 import { retrieveSettings } from "../js/retrieveSettings.js";
 import { formatDate } from "../js/formatDate.js";
+import { extensionMessageSender } from "../js/extensionMessageSender.js";
 
 document.addEventListener("DOMContentLoaded", async function () {
   const ISDbLastUpdatedDate = document.getElementById("ISDbLastUpdatedDate");
@@ -33,9 +34,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     ISDbLastUpdatedDate.innerText = formattedDate;
   }
 
-  const databaseLastImportedDate = (await retrieveSettings("databaseLastImportedDate")).databaseLastImportedDate;
-  if (databaseLastImportedDate) {
-    ISDbLastImportedDate.innerText = databaseLastImportedDate;
+  const settingISDbLastImportedDate = (await retrieveSettings("settingISDbLastImportedDate")).settingISDbLastImportedDate;
+  if (settingISDbLastImportedDate) {
+    ISDbLastImportedDate.innerText = settingISDbLastImportedDate;
   }
 
 
@@ -43,10 +44,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     reloadButton.className = "btn btn-secondary w-50 disabled";
 
     // Send a message to the extension's background script to initiate the creation of the bookmark folder
-    const backgroundScriptResponse = await browser.runtime.sendMessage({
-      action: "reloadButton",
-      jsonISDatabaseAPI
-    });
+    extensionMessageSender("reloadButton", jsonISDatabaseAPI);
 
     if (backgroundScriptResponse === false) {
       reloadButton.innerText = "FAIL";
@@ -56,7 +54,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   function messageListener(message) {
     if (message.action === "updateProgress") {
-      if (message.optionalMessage.progress === 100) {
+      if (ISDbLastImportedDate.innerText !== message.payload.updateISDbLastImportedDate) {
+        ISDbLastImportedDate.innerText = message.payload.updateISDbLastImportedDate;
+      }
+
+      if (message.payload.progress === 100) {
         reloadButton.innerText = "DONE";
         reloadButton.className = "btn btn-success w-50";
       } else {
@@ -64,10 +66,9 @@ document.addEventListener("DOMContentLoaded", async function () {
           reloadButton.className = "btn btn-secondary w-50 disabled";
         }
 
-        reloadButton.innerText = `${message.optionalMessage.progress.toFixed(1)}%`;
+        reloadButton.innerText = `${message.payload.progress.toFixed(1)}%`;
       }
-    } else if (message.action === "updateISDbLastImportedDate") {
-      ISDbLastImportedDate.innerText = message.optionalMessage.formattedDate;
+
     } else {
       return false;
     }
