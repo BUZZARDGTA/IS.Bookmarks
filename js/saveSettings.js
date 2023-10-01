@@ -1,6 +1,6 @@
 export { saveSettings };
 
-// Save setting
-async function saveSettings(settingsToSave) {
-  await browser.storage.local.set(settingsToSave);
+// Save setting in local storage
+function saveSettings(settingsToSave) {
+  return browser.storage.local.set(settingsToSave);
 }

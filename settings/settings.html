@@ -13,11 +13,7 @@
 </head>
 
 <body>
-
-  <script type="module" src="settings.js"></script>
-
   <div class="container">
-
     <h1>IS Bookmarks</h1>
     <h2 class="settings-remove-space">Settings:</h2>
     <hr>
@@ -28,9 +24,20 @@
       <span>Automatically update bookmarks at browser startup</span>
     </label>
 
+    <div class="folder-save">
+      <div>
+        <span>Saves "Illegal Services" folder within this bookmark folder ID:</span>
+        <br>
+        <input id="bookmarkFolderIdInput" type="text" maxlength="12" placeholder="[bookmark_folder_id]">
+        <div class="buttons">
+          <button class="save" id="saveBookmarkFolderIdButton" type="button">Save</button>
+          <button class="reset" id="resetBookmarkFolderIdButton" type="button">Reset</button>
+        </div>
+      </div>
+    </div>
   </div>
 
-
+  <script type="module" src="settings.js"></script>
 </body>
 
 </html>

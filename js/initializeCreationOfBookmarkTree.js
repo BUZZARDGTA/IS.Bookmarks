@@ -52,58 +52,28 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
 
   bookmarkDb = bookmarkDb.slice(1); // Slice the very first array which contains the "Bookmarks Toolbar" folder
 
-  // Remove previous "Illegal Services" bookmark folder(s) from depth 0, before creating the new bookmark
-  const filteredBookmarks = await searchBookmarksWithTypeAndDepth(null, null, "Illegal Services", "folder", 0);
-  for (const object of filteredBookmarks) {
-    await browser.bookmarks.removeTree(object.id);
+  // Remove previous "Illegal Services" bookmark folder(s), only those in the same depth as the previous one... before creating the new bookmark
+  const settingBookmarkSaveLocation = (await retrieveSettings("settingBookmarkSaveLocation")).settingBookmarkSaveLocation;
+  const bookmarksSearch = await browser.bookmarks.search({ title: "Illegal Services" });
+  const filteredBookmarks = bookmarksSearch.filter(bookmark => bookmark.type === "folder");
+
+  for (const folder of filteredBookmarks) {
+    if (folder.parentId === settingBookmarkSaveLocation) {
+      await browser.bookmarks.removeTree(folder.id)
+    }
   }
 
-  const formattedDate = await createBookmarkTree(bookmarkDb);
+  const formattedDate = await createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation);
 
   await saveSettings({ "settingISDatabaseSHA": fetchedISDatabaseSHA });
   await saveSettings({ "settingISDbLastImportedDate": formattedDate });
 
-  return true; // Tells the 'Reload' button that the script succeeded
+  return true; // to indicate that the script has successfully finished importing.
 }
 
-async function searchBookmarksWithTypeAndDepth(query, url, title, type, depth) {
-
-  // Function to calculate the depth of a bookmark using async recursion
-  function calculateDepth(nodeId, currentDepth) {
-    if (currentDepth > depth) {
-      return -1; // Mark bookmarks beyond the specified depth
-    }
-
-    return browser.bookmarks.get(nodeId).then((node) => {
-      if (!node.parentId) {
-        return currentDepth; // We've reached the root node
-      }
-      return calculateDepth(node.parentId, currentDepth + 1);
-    });
-  }
-
-  // Search for bookmarks with the specified title
-  const bookmarks = await browser.bookmarks.search({ query, url, title });
-
-  // Filter the bookmarks to include only those at the specified depth and match the target type
-  const filteredBookmarks = await Promise.all(
-    bookmarks.map(async (bookmark) => {
-      const bookmarkDepth = await calculateDepth(bookmark.id, 0);
-      if (bookmarkDepth === depth && bookmark.type === type) {
-        return bookmark;
-      }
-      return null;
-    })
-  );
-
-  // Remove null values (bookmarks that didn't match the criteria)
-  const validBookmarks = filteredBookmarks.filter((bookmark) => bookmark !== null);
-
-  return validBookmarks;
-}
 
 // Function to create a bookmark tree
-async function createBookmarkTree(bookmarkDb) {
+async function createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation) {
 
   // This function decodes HTML entities from a given string.
   // This is required because when exporting bookmarks from Firefox, certain special characters (such as <, >, ", ' and &) in bookmark titles are encoded during the export process
@@ -126,7 +96,7 @@ async function createBookmarkTree(bookmarkDb) {
   }
 
   const formattedDate = formatDate();
-  const parentStack = ["toolbar_____"]; // Start with the Bookmarks Toolbar as the initial parent
+  const parentStack = [settingBookmarkSaveLocation]; // Start with the 'settingBookmarkSaveLocation' as the initial parent
   const total = bookmarkDb.length - 1; // Removes -1 because 'index' starts from 0
   const enumeratedDb = bookmarkDb.map((value, index) => [index, value]);
 
@@ -145,7 +115,7 @@ async function createBookmarkTree(bookmarkDb) {
       parentStack.splice(-depthToRemove);
     }
 
-    const parentId = parentStack[parentStack.length - 1];
+    const parentId = parentStack[parentStack.length - 1]; // Retrieves the last 'Id' item from the 'parentStack' list
 
     // DEBUG: console.log(parentStack, parentId, parentStack.length, depth, type, entry[2], entry[3]);
 

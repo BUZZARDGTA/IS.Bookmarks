@@ -7,14 +7,14 @@ import { extensionMessageSender } from "../js/extensionMessageSender.js";
 document.addEventListener("DOMContentLoaded", async function () {
   const ISDbLastUpdatedDate = document.getElementById("ISDbLastUpdatedDate");
   const ISDbLastImportedDate = document.getElementById("ISDbLastImportedDate");
-  const reloadButton = document.getElementById("reloadButton");
+  const importButton = document.getElementById("importButton");
   const settingsButton = document.getElementById("settingsButton");
 
   // Add a message event listener for the background 'updateProgress'
   browser.runtime.onMessage.addListener(messageListener);
 
-  // Add a click event listener to the 'reloadButton' button
-  reloadButton.addEventListener("click", reload);
+  // Add a click event listener to the 'importButton' button
+  importButton.addEventListener("click", importDb);
 
   // Add a click event listener to the settings button
   settingsButton.addEventListener("click", function () {
@@ -40,14 +40,14 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
 
-  async function reload() {
-    reloadButton.className = "btn btn-secondary w-50 disabled";
+  async function importDb() {
+    importButton.className = "btn btn-secondary w-50 disabled";
 
     // Send a message to the extension's background script to initiate the creation of the bookmark folder
-    const backgroundScriptResponse = await extensionMessageSender("reloadButton", jsonISDatabaseAPI);
+    const backgroundScriptResponse = await extensionMessageSender("importButton", jsonISDatabaseAPI);
     if (backgroundScriptResponse !== true) {
-      reloadButton.innerText = "FAIL";
-      reloadButton.className = "btn btn-danger w-50 disabled";
+      importButton.innerText = "FAIL";
+      importButton.className = "btn btn-danger w-50 disabled";
     }
   }
 
@@ -58,14 +58,14 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
 
       if (message.payload.progress === 100) {
-        reloadButton.innerText = "DONE";
-        reloadButton.className = "btn btn-success w-50";
+        importButton.innerText = "DONE";
+        importButton.className = "btn btn-success w-50";
       } else {
-        if (reloadButton.className !== "btn btn-secondary w-50 disabled") {
-          reloadButton.className = "btn btn-secondary w-50 disabled";
+        if (importButton.className !== "btn btn-secondary w-50 disabled") {
+          importButton.className = "btn btn-secondary w-50 disabled";
         }
 
-        reloadButton.innerText = `${message.payload.progress.toFixed(1)}%`;
+        importButton.innerText = `${message.payload.progress.toFixed(1)}%`;
       }
 
     } else {
