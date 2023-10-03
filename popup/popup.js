@@ -1,3 +1,4 @@
+import { urlISDatabaseAPI, successImportingISdatabase, successButtonClass, secondaryDisabledButtonClass, dangerDisabledButtonClass} from "../js/constants.js";
 import { makeWebRequest } from "../js/makeWebRequest.js";
 import { isResponseUp } from "../js/isResponseUp.js";
 import { retrieveSettings } from "../js/retrieveSettings.js";
@@ -10,23 +11,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   const importButton = document.getElementById("importButton");
   const settingsButton = document.getElementById("settingsButton");
 
-  // Add a message event listener for the background 'updateProgress'
-  browser.runtime.onMessage.addListener(messageListener);
-
-  // Add a click event listener to the 'importButton' button
-  importButton.addEventListener("click", importDb);
-
-  // Add a click event listener to the settings button
-  settingsButton.addEventListener("click", function () {
-    browser.tabs.create({ url:"../settings/settings.html", active: true });
-    window.close();
-  });
-
-  const urlISDatabaseAPI = "https://api.github.com/repos/Illegal-Services/IS.Bookmarks/commits?path=IS.bookmarks.json&sha=extra&per_page=1";
   let jsonISDatabaseAPI;
 
   const responseISDatabaseAPI = await makeWebRequest(urlISDatabaseAPI);
-  if (await isResponseUp(responseISDatabaseAPI)) {
+  if (isResponseUp(responseISDatabaseAPI)) {
     jsonISDatabaseAPI = await responseISDatabaseAPI.json();
     const commitDate = jsonISDatabaseAPI[0].commit.committer.date;
 
@@ -34,23 +22,48 @@ document.addEventListener("DOMContentLoaded", async function () {
     ISDbLastUpdatedDate.innerText = formattedDate;
   }
 
-  const settingISDbLastImportedDate = (await retrieveSettings("settingISDbLastImportedDate")).settingISDbLastImportedDate;
+  const { settingISDbLastImportedDate } = await retrieveSettings("settingISDbLastImportedDate");
   if (settingISDbLastImportedDate) {
     ISDbLastImportedDate.innerText = settingISDbLastImportedDate;
   }
 
+  browser.runtime.onMessage.addListener(messageListener);
 
-  async function importDb() {
-    importButton.className = "btn btn-secondary w-50 disabled";
+  importButton.addEventListener("click", handleImportButton);
+  settingsButton.addEventListener("click", handleSettingsButton);
 
-    // Send a message to the extension's background script to initiate the creation of the bookmark folder
+
+  /**
+   * Function that sends a message to the background script, which will remains active in the background, and initiate the creation of the bookmarks.
+   * @async
+   * @returns {Promise<void>} A promise that resolves when the bookmark tree has been successfully created.
+   */
+  async function handleImportButton() {
+    importButton.className = secondaryDisabledButtonClass;
+
     const backgroundScriptResponse = await extensionMessageSender("importButton", jsonISDatabaseAPI);
-    if (backgroundScriptResponse !== true) {
+    if (backgroundScriptResponse !== successImportingISdatabase) {
       importButton.innerText = "FAIL";
-      importButton.className = "btn btn-danger w-50 disabled";
+      importButton.className = dangerDisabledButtonClass;
     }
   }
 
+  /**
+   * Function that opens the extension's HTML settings page, and closes the current HTML popup window.
+   * @returns {Promise<void>} A promise that resolves when the HTML popup window closed.
+   */
+  function handleSettingsButton() {
+    browser.tabs.create({ url:"../settings/settings.html", active: true });
+    window.close();
+  }
+
+  /**
+   * Function that listens for a message received from the `runtime.onMessage` event listener.
+   *
+   * If the {@link message} equal `updateProgress`, it will update some elements in the HTML popup window.
+   * @param {Object} message - The message received.
+   * @returns {void}
+   */
   function messageListener(message) {
     if (message.action === "updateProgress") {
       if (ISDbLastImportedDate.innerText !== message.payload.updateISDbLastImportedDate) {
@@ -59,17 +72,14 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       if (message.payload.progress === 100) {
         importButton.innerText = "DONE";
-        importButton.className = "btn btn-success w-50";
+        importButton.className = successButtonClass;
       } else {
-        if (importButton.className !== "btn btn-secondary w-50 disabled") {
-          importButton.className = "btn btn-secondary w-50 disabled";
+        if (importButton.className !== secondaryDisabledButtonClass) {
+          importButton.className = secondaryDisabledButtonClass;
         }
 
         importButton.innerText = `${message.payload.progress.toFixed(1)}%`;
       }
-
-    } else {
-      return false;
     }
   }
 });

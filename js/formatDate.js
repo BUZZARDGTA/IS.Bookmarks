@@ -1,6 +1,10 @@
 export { formatDate };
 
-
+/**
+ * Function that formats a date into a localized string with specific options.
+ * @param {Date|string|number|undefined} date - The date to format. If not provided, the current date and time will be used.
+ * @returns {string} A formatted date string according to the specified options.
+ */
 function formatDate(date) {
   if (date === undefined) {
     date = new Date();

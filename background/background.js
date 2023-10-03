@@ -1,6 +1,6 @@
 import { retrieveSettings } from "../js/retrieveSettings.js";
 import { saveSettings } from "../js/saveSettings.js";
-import { defaultBookmarkSaveLocation } from "../js/defaultBookmarkSaveLocation.js";
+import { defaultBookmarkSaveLocation } from "../js/constants.js";
 import { isSaveBookmarkFolderIdIllegal } from "../js/isSaveBookmarkFolderIdIllegal.js";
 import { initializeCreationOfBookmarkTree } from "../js/initializeCreationOfBookmarkTree.js";
 
@@ -27,7 +27,7 @@ browser.runtime.onStartup.addListener(async () => {
 // Listen for incoming messages from the extension's UI 'importButton' button pressed
 browser.runtime.onMessage.addListener((message) => {
   if (message.action === "importButton") {
-    return initializeCreationOfBookmarkTree(message.action, message.jsonISDatabaseAPI);
+    return initializeCreationOfBookmarkTree(message.action, message.payload);
   }
 });
 
@@ -62,23 +62,23 @@ childMenuItems.forEach((menuItem) => {
   });
 });
 
+// Best regards, code below was partially taken from this amazing project: https://addons.mozilla.org/firefox/addon/open-bookmarks-slowly/
 browser.menus.onShown.addListener(async function onShown(info) {
-  // Best regards, code below was partially taken from this amazing project: https://addons.mozilla.org/firefox/addon/open-bookmarks-slowly/
-  let bookmarks;
+  if (!info.contexts.includes("bookmark")) {
+    return;
+  }
+
   let bookmark;
   try {
-    bookmarks = await browser.bookmarks.get(info.bookmarkId);
-    bookmark = bookmarks[0];
+    const bookmarkInfo = await browser.bookmarks.get(info.bookmarkId);
+    bookmark = bookmarkInfo[0];
   } catch (error) {
     console.error(error);
-    alert(error);
     return;
   }
 
   if (isSaveBookmarkFolderIdIllegal(info.bookmarkId)) {
-    const textError = `The specified [bookmark_folder_id: ${info.bookmarkId}] is an illegal bookmark folder.`;
-    console.error(textError);
-    alert(textError);
+    console.error(`The specified [bookmark_folder_id: ${info.bookmarkId}] is an illegal bookmark folder.`);
     return;
   }
 

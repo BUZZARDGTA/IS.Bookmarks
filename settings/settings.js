@@ -1,6 +1,6 @@
 import { retrieveSettings } from "../js/retrieveSettings.js";
 import { saveSettings } from "../js/saveSettings.js";
-import { defaultBookmarkSaveLocation } from "../js/defaultBookmarkSaveLocation.js";
+import { defaultBookmarkSaveLocation } from "../js/constants.js";
 import { isSaveBookmarkFolderIdIllegal } from "../js/isSaveBookmarkFolderIdIllegal.js";
 
 document.addEventListener("DOMContentLoaded", async function () {
@@ -39,7 +39,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   });
 
-  // Add a click event listener to the 'resetBookmarkFolderIdButton' button
   resetBookmarkFolderIdButton.addEventListener("click", async function() {
     await saveSettings({
       settingBookmarkSaveLocation: defaultBookmarkSaveLocation
@@ -48,10 +47,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     bookmarkFolderIdInput.value = "";
   });
 
-  // Add an event listener for storage changes
   browser.storage.onChanged.addListener(handleSettingChange);
 
-  // Function to handle changes to the setting
+  /**
+   * Function that adds an event listener to the `browser.storage` changes. Then handles setting changes in local storage.
+   * @param {Object} changes - An object representing the changes in storage.
+   * @param {string} areaName - The name of the storage area where the changes occurred.
+   * @returns {void}
+   */
   function handleSettingChange(changes, areaName) {
     if (areaName !== "local") {
       return;
@@ -63,6 +66,15 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   }
 
+
+ /**
+  * Function that adds an event listener to a checkbox element.
+  *
+  * This function listens for changes in the specified checkbox element and updates a corresponding setting in local storage based on its checked state.
+  * @param {HTMLElement} checkboxHtmlId - The HTML checkbox element to attach the change listener to.
+  * @param {string} localStorageKey - The key used to store the setting in local storage.
+  * @returns {void}
+  */
   function addCheckboxChangeListener(checkboxHtmlId, localStorageKey) {
     checkboxHtmlId.addEventListener("change", async () => {
       const settingsObj = { [localStorageKey]: checkboxHtmlId.checked }; // Create a settings object with a dynamic key based on localStorageKey and set its value to the checked state of the checkbox element
@@ -70,7 +82,11 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-
+  /**
+   * Function that checks if the {@link https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/BookmarkTreeNode#id `bookmark folder id`} is valid, then saves it in the {@link saveSettings settings}.
+   * @async
+   * @returns {Promise<void>} A promise that resolves when the setting has been saved or when the folder is invalid.
+   */
   async function handleSaveBookmarkFolderIdButtonAction() {
     if (bookmarkFolderIdInput.value.length !== 12) {
       const textError = `The specified [bookmark_folder_id: ${bookmarkFolderIdInput.value}] doesn't match a length of 12 characters.`;
@@ -79,11 +95,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    let bookmarks;
     let bookmark;
     try {
-      bookmarks = await browser.bookmarks.get(bookmarkFolderIdInput.value);
-      bookmark = bookmarks[0];
+      const bookmarkInfo = await browser.bookmarks.get(bookmarkFolderIdInput.value);
+      bookmark = bookmarkInfo[0];
     } catch (error) {
       const textError = `The specified [bookmark_folder_id: ${bookmarkFolderIdInput.value}] does not exist in your bookmarks tree.`;
       console.error(error);
@@ -92,15 +107,15 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    if (isSaveBookmarkFolderIdIllegal(bookmarkFolderIdInput.value)) {
-      const textError = `The specified [bookmark_folder_id: ${bookmarkFolderIdInput.value}] is an illegal bookmark folder.`;
+    if (!bookmark || bookmark.type !== "folder") {
+      const textError = `The specified [bookmark_folder_id: ${bookmarkFolderIdInput.value}] is not a valid bookmark folder.`;
       console.error(textError);
       alert(textError);
       return;
     }
 
-    if (!bookmark || bookmark.type !== "folder") {
-      const textError = `The specified [bookmark_folder_id: ${bookmarkFolderIdInput.value}] is not a valid bookmark folder.`;
+    if (isSaveBookmarkFolderIdIllegal(bookmarkFolderIdInput.value)) {
+      const textError = `The specified [bookmark_folder_id: ${bookmarkFolderIdInput.value}] is an illegal bookmark folder.`;
       console.error(textError);
       alert(textError);
       return;
