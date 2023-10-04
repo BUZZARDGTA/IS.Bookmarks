@@ -35,7 +35,7 @@
   },
   "background": {
     "scripts": [
-        "background/background.js"
+      "background/background.js"
     ],
     "type": "module"
   },
