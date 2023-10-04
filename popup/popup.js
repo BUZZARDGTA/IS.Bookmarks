@@ -51,6 +51,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   /**
    * Function that opens the extension's HTML settings page, and closes the current HTML popup window.
    * @returns {Promise<void>} A promise that resolves when the HTML popup window closed.
+   * @see {@link https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/tabs/create `tabs.create`} on MDN
    */
   function handleSettingsButton() {
     browser.tabs.create({ url:"../settings/settings.html", active: true });

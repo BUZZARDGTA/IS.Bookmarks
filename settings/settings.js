@@ -86,6 +86,7 @@ document.addEventListener("DOMContentLoaded", async function () {
    * Function that checks if the {@link https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/BookmarkTreeNode#id `bookmark folder id`} is valid, then saves it in the {@link saveSettings settings}.
    * @async
    * @returns {Promise<void>} A promise that resolves when the setting has been saved or when the folder is invalid.
+   * @see {@link https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/get `bookmarks.get`} on MDN
    */
   async function handleSaveBookmarkFolderIdButtonAction() {
     if (bookmarkFolderIdInput.value.length !== 12) {
