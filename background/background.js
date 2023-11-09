@@ -1,8 +1,8 @@
-import { retrieveSettings } from "../js/retrieveSettings.js";
-import { saveSettings } from "../js/saveSettings.js";
-import { defaultBookmarkSaveLocation } from "../js/constants.js";
-import { isSaveBookmarkFolderIdIllegal } from "../js/isSaveBookmarkFolderIdIllegal.js";
-import { initializeCreationOfBookmarkTree } from "../js/initializeCreationOfBookmarkTree.js";
+import { retrieveSettings } from "/js/retrieveSettings.js";
+import { saveSettings } from "/js/saveSettings.js";
+import { defaultBookmarkSaveLocation } from "/js/constants.js";
+import { isSaveBookmarkFolderIdIllegal } from "/js/isSaveBookmarkFolderIdIllegal.js";
+import { initializeCreationOfBookmarkTree } from "/js/initializeCreationOfBookmarkTree.js";
 
 // Add an event listener for the 'onInstalled' event, which means it will run when the extension when it will be first installed
 browser.runtime.onInstalled.addListener(async (details) => {
@@ -10,7 +10,7 @@ browser.runtime.onInstalled.addListener(async (details) => {
     await saveSettings({
       updateBookmarksAtBrowserStartup: true,
       settingISDatabaseSHA: null,
-      settingBookmarkSaveLocation: defaultBookmarkSaveLocation
+      settingBookmarkSaveLocation: defaultBookmarkSaveLocation,
     });
 
     return initializeCreationOfBookmarkTree(details.reason);
@@ -41,7 +41,7 @@ const childMenuItems = [
   {
     id: "import-database",
     title: "Import Database",
-  }
+  },
 ];
 
 // Create the parent context menu item
@@ -83,7 +83,7 @@ browser.menus.onShown.addListener(async function onShown(info) {
   }
 
   browser.menus.update("database-actions", {
-    visible: (bookmark.type === "folder"),
+    visible: bookmark.type === "folder",
   });
   browser.menus.refresh();
 });
@@ -98,11 +98,11 @@ browser.menus.onClicked.addListener(function (info, tab) {
     switch (info.menuItemId) {
       case "set-database-folder":
         await saveSettings({
-          settingBookmarkSaveLocation: info.bookmarkId
+          settingBookmarkSaveLocation: info.bookmarkId,
         });
         break;
       case "import-database":
-        await initializeCreationOfBookmarkTree("menu-action-import-database")
+        await initializeCreationOfBookmarkTree("menu-action-import-database");
         break;
       default:
         break;

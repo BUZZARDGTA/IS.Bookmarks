@@ -1,9 +1,10 @@
-import { urlISDatabaseAPI, successImportingISdatabase, successButtonClass, secondaryDisabledButtonClass, dangerDisabledButtonClass} from "../js/constants.js";
-import { makeWebRequest } from "../js/makeWebRequest.js";
-import { isResponseUp } from "../js/isResponseUp.js";
-import { retrieveSettings } from "../js/retrieveSettings.js";
-import { formatDate } from "../js/formatDate.js";
-import { extensionMessageSender } from "../js/extensionMessageSender.js";
+import { urlISDatabaseAPI, successImportingISdatabase, successButtonClass, secondaryDisabledButtonClass, dangerDisabledButtonClass } from "/js/constants.js";
+import { makeWebRequest } from "/js/makeWebRequest.js";
+import { isResponseUp } from "/js/isResponseUp.js";
+import { retrieveSettings } from "/js/retrieveSettings.js";
+import { formatDate } from "/js/formatDate.js";
+import { extensionMessageSender } from "/js/extensionMessageSender.js";
+import { openOrFocusHTMLPage } from "/js/openOrFocusHTMLPage.js";
 
 document.addEventListener("DOMContentLoaded", async function () {
   const ISDbLastUpdatedDate = document.getElementById("ISDbLastUpdatedDate");
@@ -29,16 +30,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   browser.runtime.onMessage.addListener(messageListener);
 
-  importButton.addEventListener("click", handleImportButton);
-  settingsButton.addEventListener("click", handleSettingsButton);
-
-
-  /**
-   * Function that sends a message to the background script, which will remains active in the background, and initiate the creation of the bookmarks.
-   * @async
-   * @returns {Promise<void>} A promise that resolves when the bookmark tree has been successfully created.
-   */
-  async function handleImportButton() {
+  // Event listener that sends a message to the background script, which will remains active in the background, and initiate the creation of the bookmarks.
+  importButton.addEventListener("click", async function () {
     importButton.className = secondaryDisabledButtonClass;
 
     const backgroundScriptResponse = await extensionMessageSender("importButton", jsonISDatabaseAPI);
@@ -46,24 +39,19 @@ document.addEventListener("DOMContentLoaded", async function () {
       importButton.innerText = "FAIL";
       importButton.className = dangerDisabledButtonClass;
     }
-  }
+  });
 
-  /**
-   * Function that opens the extension's HTML settings page, and closes the current HTML popup window.
-   * @returns {Promise<void>} A promise that resolves when the HTML popup window closed.
-   * @see {@link https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/tabs/create `tabs.create`} on MDN
-   */
-  function handleSettingsButton() {
-    browser.tabs.create({ url:"../settings/settings.html", active: true });
+  // Event listener that opens the extension's settings page, and then closes the current popup window.
+  settingsButton.addEventListener("click", async function () {
+    await openOrFocusHTMLPage("/settings/settings.html");
     window.close();
-  }
+  });
 
   /**
    * Function that listens for a message received from the `runtime.onMessage` event listener.
    *
    * If the {@link message} equal `updateProgress`, it will update some elements in the HTML popup window.
-   * @param {Object} message - The message received.
-   * @returns {void}
+   * @param {object} message - The message received.
    */
   function messageListener(message) {
     if (message.action === "updateProgress") {

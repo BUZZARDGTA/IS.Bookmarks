@@ -33,17 +33,17 @@ footer {
   overflow: visible;
 }
 .ico.illegal-services {
-  content: url("../svgs/globe.svg");
+  content: url("/svgs/globe.svg");
 }
 .ico.github {
-  content: url("../svgs/github.svg");
+  content: url("/svgs/github.svg");
 }
 .ico.telegram {
-  content: url("../svgs/telegram.svg");
+  content: url("/svgs/telegram.svg");
 }
 .ico.youtube {
-  content: url("../svgs/youtube.svg");
+  content: url("/svgs/youtube.svg");
 }
 .ico.twitch {
-  content: url("../svgs/twitch.svg");
+  content: url("/svgs/twitch.svg");
 }

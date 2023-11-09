@@ -1,20 +1,18 @@
-import { urlISDatabaseAPI, urlRawISDatabase, successImportingISdatabase, failureImportingISdatabase} from "./constants.js";
+import { urlISDatabaseAPI, urlRawISDatabase, successImportingISdatabase, failureImportingISdatabase } from "./constants.js";
 import { makeWebRequest } from "./makeWebRequest.js";
 import { isResponseUp } from "./isResponseUp.js";
 import { retrieveSettings } from "./retrieveSettings.js";
-import { extensionMessageSender } from "./extensionMessageSender.js"
+import { extensionMessageSender } from "./extensionMessageSender.js";
 import { saveSettings } from "./saveSettings.js";
 import { formatDate } from "./formatDate.js";
-
 
 export { initializeCreationOfBookmarkTree };
 
 /**
  * Function that initialize the creation of the {@link createBookmarkTree} from: {@link urlISDatabaseAPI `IS.bookmarks.json`}.
- * @async
  * @param {string} updateType - The string which tells which method has been used to start the importation of the bookmarks.
  * @param {JSON | undefined} jsonISDatabaseAPI - The web request JSON; can be `undefined` if the request has not been done already.
- * @returns {Promise<({successImportingISdatabase} | {failureImportingISdatabase} | undefined)>} A promise that resolves when the bookmarks have been imported, indicating {@link successImportingISdatabase success} or {@link failureImportingISdatabase failure}; can also be `undefined` if no update was required.
+ * @returns A promise that resolves when the bookmarks have been imported, indicating {@link successImportingISdatabase success} or {@link failureImportingISdatabase failure}; can also be `undefined` if no update was required.
  */
 async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
   if (jsonISDatabaseAPI === undefined) {
@@ -28,6 +26,7 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
   const fetchedSHA = jsonISDatabaseAPI[0].sha;
   const { settingISDatabaseSHA } = await retrieveSettings("settingISDatabaseSHA");
 
+  // prettier-ignore
   if (
     fetchedSHA === settingISDatabaseSHA
     && updateType === "startup"
@@ -49,6 +48,7 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
     return failureImportingISdatabase;
   }
 
+  // prettier-ignore
   if (
     (!Array.isArray(bookmarkDb))
     || (JSON.stringify(bookmarkDb[0]) !== '["FOLDER",0,"Bookmarks Toolbar"]') // Checks if the first array from the 'bookmarkDb' correctly matches the official IS bookmarks database
@@ -62,6 +62,7 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
 
   // Removes previous "Illegal Services" bookmark folder(s), only those in the same depth as the previous one... before creating the new bookmark
   const bookmarksSearch = await browser.bookmarks.search({ title: "Illegal Services" });
+  // prettier-ignore
   for (const folder of bookmarksSearch.filter(bookmark =>
     bookmark.type === "folder"
     && bookmark.parentId === settingBookmarkSaveLocation
@@ -73,59 +74,59 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
   await createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation, formattedDate);
 
   await saveSettings({
-    "settingISDatabaseSHA": fetchedSHA,
-    "settingISDbLastImportedDate": formattedDate
+    settingISDatabaseSHA: fetchedSHA,
+    settingISDbLastImportedDate: formattedDate,
   });
 
   return successImportingISdatabase;
 }
 
-
 /**
  * Function that creates the bookmark tree initiallized from the {@link initializeCreationOfBookmarkTree `initializeCreationOfBookmarkTree`} function.
- * @async
  * @param {Array} bookmarkDb - The database that contains all the bookmarks to be created.
  * @param {string} settingBookmarkSaveLocation - The {@link https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/BookmarkTreeNode#id `bookmark folder id`}, where we start importing the bookmarks.
  * @param {string} formattedDate - The formatted date from when we started importing the bookmarks.
- * @returns {Promise<void>} A promise that resolves when the bookmark tree has been successfully created.
+ * @returns A promise that resolves when the bookmark tree has been successfully created.
  */
 async function createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation, formattedDate) {
-
   /**
    * Function that decodes HTML entities from a given string.
    *
    * This is required because when exporting bookmarks from Firefox, certain special characters (such as [`<`, `>`, `"`, `'`, `&`]) in bookmark titles are encoded during the export process.
    * @param {string} string - The encoded string.
-   * @returns {string} The decoded string.
+   * @returns The decoded string.
    */
   function decodeHtmlEntityEncoding(string) {
     return string.replace(/&amp;|&quot;|&#39;|&lt;|&gt;/g, function (match) {
       switch (match) {
-        case "&lt;": return "<";
-        case "&gt;": return ">";
-        case "&quot;": return "\"";
-        case "&#39;": return "'";
-        case "&amp;": return "&";
-        default: return match;
+        case "&lt;":
+          return "<";
+        case "&gt;":
+          return ">";
+        case "&quot;":
+          return '"';
+        case "&#39;":
+          return "'";
+        case "&amp;":
+          return "&";
+        default:
+          return match;
       }
     });
   }
 
   /**
    * Function that creates a new bookmark.
-   * @async
-   * @param {number} index - see {@link https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/CreateDetails `bookmarks.CreateDetails`} on MDN
-   * @param {string} parentId - see {@link https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/CreateDetails `bookmarks.CreateDetails`} on MDN
-   * @param {string} title - see {@link https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/CreateDetails `bookmarks.CreateDetails`} on MDN
-   * @param {string} type - see {@link https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/CreateDetails `bookmarks.CreateDetails`} and {@link https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/BookmarkTreeNodeType  `bookmarks.BookmarkTreeNodeType`} on MDN
-   * @param {string} url - see {@link https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/CreateDetails `bookmarks.CreateDetails`} on MDN
-   * @returns {Promise<Object>} A Promise that resolves to the created bookmark object.
-   * @See {@link https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/create `bookmarks.create`} on MDN
-  */
+   * @param {number} index
+   * @param {string} parentId
+   * @param {string} title
+   * @param {string} type
+   * @param {string} url
+   * @returns {Promise<object>} A Promise that resolves to the created bookmark object.
+   */
   async function createBookmark(index, parentId, title, type, url) {
     return await browser.bookmarks.create({ index, parentId, title, type, url });
   }
-
 
   const parentStack = [settingBookmarkSaveLocation]; // Start with the 'settingBookmarkSaveLocation' as the initial parent
   const total = bookmarkDb.length - 1; // Removes -1 because 'index' starts from 0
@@ -135,11 +136,11 @@ async function createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation, forma
     // Sends a message to the popup script indicating that the background script is currently in the process of creating the bookmark
     extensionMessageSender("updateProgress", {
       updateISDbLastImportedDate: formattedDate,
-      progress: index * 100 / total
+      progress: (index * 100) / total,
     });
 
     const [type, depth] = entry;
-    const depthToRemove = (parentStack.length - depth);
+    const depthToRemove = parentStack.length - depth;
 
     if (depthToRemove > 0) {
       parentStack.splice(-depthToRemove);
