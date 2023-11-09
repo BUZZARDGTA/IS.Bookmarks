@@ -9,6 +9,7 @@ import { openOrFocusHTMLPage } from "/js/openOrFocusHTMLPage.js";
 document.addEventListener("DOMContentLoaded", async function () {
   const ISDbLastUpdatedDate = document.getElementById("ISDbLastUpdatedDate");
   const ISDbLastImportedDate = document.getElementById("ISDbLastImportedDate");
+  const tutorialHtml = document.getElementById("tutorialHtml");
   const importButton = document.getElementById("importButton");
   const settingsButton = document.getElementById("settingsButton");
 
@@ -41,7 +42,13 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   });
 
-  // Event listener that opens the extension's settings page, and then closes the current popup window.
+  // Event listener that opens the extension's tutorial page, and then closes the popup window.
+  tutorialHtml.addEventListener("click", async function () {
+    await openOrFocusHTMLPage("/html/tutorial.html");
+    window.close();
+  });
+
+  // Event listener that opens the extension's settings page, and then closes the popup window.
   settingsButton.addEventListener("click", async function () {
     await openOrFocusHTMLPage("/settings/settings.html");
     window.close();
