@@ -18,7 +18,7 @@ browser.runtime.onInstalled.addListener(async (details) => {
 });
 
 // Add an event listener for the 'onStartup' event, which means it will run when Firefox starts up or when a new browser window is opened
-browser.runtime.onStartup.addListener(async () => {
+browser.runtime.onStartup.addListener(async function () {
   if ((await retrieveSettings("updateBookmarksAtBrowserStartup")).updateBookmarksAtBrowserStartup !== false) {
     return initializeCreationOfBookmarkTree("startup");
   }
