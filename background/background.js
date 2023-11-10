@@ -10,6 +10,7 @@ browser.runtime.onInstalled.addListener(async (details) => {
     await saveSettings({
       updateBookmarksAtBrowserStartup: true,
       settingISDatabaseSHA: null,
+      settingISDbLastImportedDate: "null",
       settingBookmarkSaveLocation: defaultBookmarkSaveLocation,
     });
 

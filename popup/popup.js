@@ -26,9 +26,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   const { settingISDbLastImportedDate } = await retrieveSettings("settingISDbLastImportedDate");
-  if (settingISDbLastImportedDate) {
-    ISDbLastImportedDate.innerText = settingISDbLastImportedDate;
-  }
+  ISDbLastImportedDate.innerText = settingISDbLastImportedDate;
 
   browser.runtime.onMessage.addListener(messageListener);
 
