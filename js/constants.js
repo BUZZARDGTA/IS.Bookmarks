@@ -4,9 +4,9 @@ export const urlRawISDatabase = "https://raw.githubusercontent.com/Illegal-Servi
 export const defaultBookmarkSaveLocation = "toolbar_____";
 export const illegalIds = ["tags________"];
 
-export const failureImportingISdatabase = "Failed";
 export const successImportingISdatabase = "Completed";
 export const stopImportingISdatabase = "Stopped";
+export const failureImportingISdatabase = "Failed";
 
 //export const defaultImportButtonClass = "btn btn-primary w-50 enabled";
 export const successImportButtonClass = "btn btn-success w-50 disabled";

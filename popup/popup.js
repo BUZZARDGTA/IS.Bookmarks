@@ -1,4 +1,4 @@
-import { urlISDatabaseAPI, successImportingISdatabase, stopImportingISdatabase, failedImportButtonClass, successImportButtonClass, currentlyImportButtonClass } from "/js/constants.js";
+import { urlISDatabaseAPI, successImportingISdatabase, stopImportingISdatabase, failureImportingISdatabase, failedImportButtonClass, successImportButtonClass, currentlyImportButtonClass } from "/js/constants.js";
 import { makeWebRequest } from "/js/makeWebRequest.js";
 import { isResponseUp } from "/js/isResponseUp.js";
 import { retrieveSettings } from "/js/retrieveSettings.js";
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
       importButton.innerText = `${message.payload.progress.toFixed(1)}%`;
     } else {
-      if ([successImportingISdatabase, stopImportingISdatabase, failedImportButtonClass].includes(message.action)) {
+      if ([successImportingISdatabase, stopImportingISdatabase, failureImportingISdatabase].includes(message.action)) {
         disableStopButton();
 
         switch (message.action) {
@@ -90,10 +90,14 @@ document.addEventListener("DOMContentLoaded", async function () {
             importButton.className = failedImportButtonClass;
             importButton.innerText = "STOP";
             break;
-          case failedImportButtonClass:
+          case failureImportingISdatabase:
             ISDbLastImportedDate.innerText = settingISDbLastImportedDate;
             importButton.className = failedImportButtonClass;
-            importButton.innerText = "FAIL";
+            if (message.payload.reason) {
+              importButton.innerText = `FAIL\n(${message.payload.reason})`;
+            } else {
+              importButton.innerText = "FAIL";
+            }
             break;
         }
       }

@@ -28,7 +28,10 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
   if (jsonISDatabaseAPI === undefined) {
     const responseISDatabaseAPI = await makeWebRequest(urlISDatabaseAPI);
     if (!isResponseUp(responseISDatabaseAPI)) {
-      return failureImportingISdatabase;
+      extensionMessageSender(failureImportingISdatabase, {
+        reason: 'Network Error: Fetching "IS.Bookmarks.json" GitHub repository API.',
+      });
+      return;
     }
     jsonISDatabaseAPI = await responseISDatabaseAPI.json();
   }
@@ -46,7 +49,10 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
 
   const responseRawISDatabase = await makeWebRequest(urlRawISDatabase);
   if (!isResponseUp(responseRawISDatabase)) {
-    return failureImportingISdatabase;
+    extensionMessageSender(failureImportingISdatabase, {
+      reason: 'Network Error: Fetching "IS.Bookmarks.json" GitHub repository file.',
+    });
+    return;
   }
   const responseText = (await responseRawISDatabase.text()).trim();
 
@@ -55,7 +61,10 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
     bookmarkDb = JSON.parse(responseText);
   } catch (error) {
     console.error(error);
-    return failureImportingISdatabase;
+    extensionMessageSender(failureImportingISdatabase, {
+      reason: 'Parsing Database: "IS.Bookmarks.json" GitHub repository file.',
+    });
+    return;
   }
 
   // prettier-ignore
@@ -63,7 +72,10 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
     (!Array.isArray(bookmarkDb))
     || (JSON.stringify(bookmarkDb[0]) !== '["FOLDER",0,"Bookmarks Toolbar"]') // Checks if the first array from the 'bookmarkDb' correctly matches the official IS bookmarks database
   ) {
-    return failureImportingISdatabase;
+    extensionMessageSender(failureImportingISdatabase, {
+      reason: 'Invalid Database: "IS.Bookmarks.json" GitHub repository file.',
+    });
+    return
   }
 
   bookmarkDb = bookmarkDb.slice(1); // Slice the very first array which contains the "Bookmarks Toolbar" folder
