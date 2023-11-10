@@ -1,4 +1,4 @@
-import { urlISDatabaseAPI, successImportingISdatabase, successButtonClass, secondaryDisabledButtonClass, dangerDisabledButtonClass } from "/js/constants.js";
+import { urlISDatabaseAPI, successImportingISdatabase, stopImportingISdatabase, failedImportButtonClass, successImportButtonClass, currentlyImportButtonClass } from "/js/constants.js";
 import { makeWebRequest } from "/js/makeWebRequest.js";
 import { isResponseUp } from "/js/isResponseUp.js";
 import { retrieveSettings } from "/js/retrieveSettings.js";
@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const ISDbLastImportedDate = document.getElementById("ISDbLastImportedDate");
   const tutorialHtml = document.getElementById("tutorialHtml");
   const importButton = document.getElementById("importButton");
+  const stopButton = document.getElementById("stopButton");
   const settingsButton = document.getElementById("settingsButton");
 
   let jsonISDatabaseAPI;
@@ -33,19 +34,22 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Event listener that sends a message to the background script, which will remains active in the background, and initiate the creation of the bookmarks.
   importButton.addEventListener("click", async function () {
-    importButton.className = secondaryDisabledButtonClass;
+    enableStopButton();
+    importButton.className = currentlyImportButtonClass;
+    importButton.innerText = "0%";
 
-    const backgroundScriptResponse = await extensionMessageSender("importButton", jsonISDatabaseAPI);
-    if (backgroundScriptResponse !== successImportingISdatabase) {
-      importButton.innerText = "FAIL";
-      importButton.className = dangerDisabledButtonClass;
-    }
+    await extensionMessageSender("importButton", jsonISDatabaseAPI);
   });
 
   // Event listener that opens the extension's tutorial page, and then closes the popup window.
   tutorialHtml.addEventListener("click", async function () {
     await openOrFocusHTMLPage("/html/tutorial.html");
     window.close();
+  });
+
+  // Event listener that opens the extension's settings page, and then closes the popup window.
+  stopButton.addEventListener("click", async function () {
+    await extensionMessageSender("stopButton");
   });
 
   // Event listener that opens the extension's settings page, and then closes the popup window.
@@ -66,16 +70,42 @@ document.addEventListener("DOMContentLoaded", async function () {
         ISDbLastImportedDate.innerText = message.payload.updateISDbLastImportedDate;
       }
 
-      if (message.payload.progress === 100) {
-        importButton.innerText = "DONE";
-        importButton.className = successButtonClass;
-      } else {
-        if (importButton.className !== secondaryDisabledButtonClass) {
-          importButton.className = secondaryDisabledButtonClass;
-        }
+      if (importButton.className !== currentlyImportButtonClass) {
+        enableStopButton();
+        importButton.className = currentlyImportButtonClass;
+      }
 
-        importButton.innerText = `${message.payload.progress.toFixed(1)}%`;
+      importButton.innerText = `${message.payload.progress.toFixed(1)}%`;
+    } else {
+      if ([successImportingISdatabase, stopImportingISdatabase, failedImportButtonClass].includes(message.action)) {
+        disableStopButton();
+
+        switch (message.action) {
+          case successImportingISdatabase:
+            importButton.className = successImportButtonClass;
+            importButton.innerText = "DONE";
+            break;
+          case stopImportingISdatabase:
+            ISDbLastImportedDate.innerText = settingISDbLastImportedDate;
+            importButton.className = failedImportButtonClass;
+            importButton.innerText = "STOP";
+            break;
+          case failedImportButtonClass:
+            ISDbLastImportedDate.innerText = settingISDbLastImportedDate;
+            importButton.className = failedImportButtonClass;
+            importButton.innerText = "FAIL";
+            break;
+        }
       }
     }
+  }
+
+  function enableStopButton() {
+    importButton.style.width = "40%";
+    stopButton.style.display = "inherit";
+  }
+  function disableStopButton() {
+    importButton.style.width = "";
+    stopButton.style.display = "none";
   }
 });

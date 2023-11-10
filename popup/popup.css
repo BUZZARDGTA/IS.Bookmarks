@@ -26,6 +26,17 @@
   padding-bottom: 7px;
 }
 
+#stopButton {
+  display: none;
+  cursor: pointer;
+  margin-left: 10px;
+
+  width: 25px;
+  height: 25px;
+  border-radius: 4px;
+  background-color: #df0000;
+}
+
 #settingsButton {
   margin-top: -2px;
   margin-left: 18px;

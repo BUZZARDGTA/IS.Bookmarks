@@ -1,4 +1,4 @@
-import { urlISDatabaseAPI, urlRawISDatabase, successImportingISdatabase, failureImportingISdatabase } from "./constants.js";
+import { urlISDatabaseAPI, urlRawISDatabase, successImportingISdatabase, failureImportingISdatabase, stopImportingISdatabase } from "./constants.js";
 import { makeWebRequest } from "./makeWebRequest.js";
 import { isResponseUp } from "./isResponseUp.js";
 import { retrieveSettings } from "./retrieveSettings.js";
@@ -8,6 +8,14 @@ import { formatDate } from "./formatDate.js";
 
 export { initializeCreationOfBookmarkTree };
 
+let stopImport;
+
+browser.runtime.onMessage.addListener((message) => {
+  if (message.action === "stopButton") {
+    stopImport = true;
+  }
+});
+
 /**
  * Function that initialize the creation of the {@link createBookmarkTree} from: {@link urlISDatabaseAPI `IS.bookmarks.json`}.
  * @param {string} updateType - The string which tells which method has been used to start the importation of the bookmarks.
@@ -15,6 +23,8 @@ export { initializeCreationOfBookmarkTree };
  * @returns A promise that resolves when the bookmarks have been imported, indicating {@link successImportingISdatabase success} or {@link failureImportingISdatabase failure}; can also be `undefined` if no update was required.
  */
 async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
+  stopImport = false;
+
   if (jsonISDatabaseAPI === undefined) {
     const responseISDatabaseAPI = await makeWebRequest(urlISDatabaseAPI);
     if (!isResponseUp(responseISDatabaseAPI)) {
@@ -71,14 +81,16 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
   }
 
   const formattedDate = formatDate();
-  await createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation, formattedDate);
+  const createBookmarkTreeResponse = await createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation, formattedDate);
 
-  await saveSettings({
-    settingISDatabaseSHA: fetchedSHA,
-    settingISDbLastImportedDate: formattedDate,
-  });
+  if (createBookmarkTreeResponse === successImportingISdatabase) {
+    await saveSettings({
+      settingISDatabaseSHA: fetchedSHA,
+      settingISDbLastImportedDate: formattedDate,
+    });
+  }
 
-  return successImportingISdatabase;
+  extensionMessageSender(createBookmarkTreeResponse);
 }
 
 /**
@@ -124,8 +136,8 @@ async function createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation, forma
    * @param {string} url
    * @returns {Promise<object>} A Promise that resolves to the created bookmark object.
    */
-  async function createBookmark(index, parentId, title, type, url) {
-    return await browser.bookmarks.create({ index, parentId, title, type, url });
+  function createBookmark(index, parentId, title, type, url) {
+    return browser.bookmarks.create({ index, parentId, title, type, url });
   }
 
   const parentStack = [settingBookmarkSaveLocation]; // Start with the 'settingBookmarkSaveLocation' as the initial parent
@@ -133,6 +145,10 @@ async function createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation, forma
   const enumeratedDb = bookmarkDb.map((value, index) => [index, value]);
 
   for (const [index, entry] of enumeratedDb) {
+    if (stopImport) {
+      return stopImportingISdatabase;
+    }
+
     // Sends a message to the popup script indicating that the background script is currently in the process of creating the bookmark
     extensionMessageSender("updateProgress", {
       updateISDbLastImportedDate: formattedDate,
@@ -162,4 +178,6 @@ async function createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation, forma
       await createBookmark(undefined, parentId, undefined, "separator", undefined);
     }
   }
+
+  return successImportingISdatabase;
 }
