@@ -28,18 +28,33 @@
 
 #stopButton {
   display: none;
-  cursor: pointer;
   margin-left: 10px;
+}
+#stopButton img {
+  width: 26px;
+  height: 26px;
+}
+#stopButton img:hover {
+  filter: brightness(100);
+  cursor: pointer;
+}
 
-  width: 25px;
-  height: 25px;
-  border-radius: 4px;
-  background-color: #df0000;
+#retryButton {
+  display: none;
+  margin-left: 10px;
+}
+#retryButton img {
+  width: 26px;
+  height: 26px;
+}
+#retryButton img:hover {
+  filter: brightness(100);
+  cursor: pointer;
 }
 
 #settingsButton {
   margin-top: -2px;
-  margin-left: 18px;
+  margin-left: 20px;
 }
 #settingsButton img {
   width: 26px;

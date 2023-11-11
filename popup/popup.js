@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const tutorialHtml = document.getElementById("tutorialHtml");
   const importButton = document.getElementById("importButton");
   const stopButton = document.getElementById("stopButton");
+  const retryButton = document.getElementById("retryButton");
   const settingsButton = document.getElementById("settingsButton");
 
   let jsonISDatabaseAPI;
@@ -32,25 +33,26 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   // Event listener that sends a message to the background script, which will remains active in the background, and initiate the creation of the bookmarks.
   importButton.addEventListener("click", async function () {
-    enableStopButton();
+    setupStartImportingButtons();
     importButton.className = currentlyImportButtonClass;
     importButton.innerText = "0%";
 
     await extensionMessageSender("importButton", jsonISDatabaseAPI);
   });
 
-  // Event listener that opens the extension's tutorial page, and then closes the popup window.
   tutorialHtml.addEventListener("click", async function () {
     await openOrFocusHTMLPage("/html/tutorial.html");
     window.close();
   });
 
-  // Event listener that opens the extension's settings page, and then closes the popup window.
   stopButton.addEventListener("click", async function () {
     await extensionMessageSender("stopButton");
   });
 
-  // Event listener that opens the extension's settings page, and then closes the popup window.
+  retryButton.addEventListener("click", async function () {
+    await extensionMessageSender("retryButton");
+  });
+
   settingsButton.addEventListener("click", async function () {
     await openOrFocusHTMLPage("/settings/settings.html");
     window.close();
@@ -69,14 +71,14 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
 
       if (importButton.className !== currentlyImportButtonClass) {
-        enableStopButton();
+        setupStartImportingButtons();
         importButton.className = currentlyImportButtonClass;
       }
 
       importButton.innerText = `${message.payload.progress.toFixed(1)}%`;
     } else {
       if ([successImportingISdatabase, stopImportingISdatabase, failureImportingISdatabase].includes(message.action)) {
-        disableStopButton();
+        setupStopImportingButtons();
 
         switch (message.action) {
           case successImportingISdatabase:
@@ -102,12 +104,28 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   }
 
-  function enableStopButton() {
+  function setupStartImportingButtons() {
     importButton.style.width = "40%";
+    enableStopButton();
+    disableRetryButton();
+  }
+  function setupStopImportingButtons() {
+    importButton.style.width = "40%";
+    disableStopButton();
+    enableRetryButton();
+  }
+
+  function enableStopButton() {
     stopButton.style.display = "inherit";
   }
   function disableStopButton() {
-    importButton.style.width = "";
     stopButton.style.display = "none";
+  }
+
+  function enableRetryButton() {
+    retryButton.style.display = "inherit";
+  }
+  function disableRetryButton() {
+    retryButton.style.display = "none";
   }
 });

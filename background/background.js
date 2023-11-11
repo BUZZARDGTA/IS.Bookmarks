@@ -25,9 +25,9 @@ browser.runtime.onStartup.addListener(async function () {
   }
 });
 
-// Listen for incoming messages from the extension's UI 'importButton' button pressed
+// Listen for incoming messages from the extension's UI 'import' or 'retry' buttons pressed
 browser.runtime.onMessage.addListener((message) => {
-  if (message.action === "importButton") {
+  if (["importButton", "retryButton"].includes(message.action)) {
     return initializeCreationOfBookmarkTree(message.action, message.payload);
   }
 });

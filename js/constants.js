@@ -9,6 +9,6 @@ export const stopImportingISdatabase = "Stopped";
 export const failureImportingISdatabase = "Failed";
 
 //export const defaultImportButtonClass = "btn btn-primary w-50 enabled";
-export const successImportButtonClass = "btn btn-success w-50 disabled";
+export const successImportButtonClass = "btn btn-success disabled";
 export const currentlyImportButtonClass = "btn btn-secondary disabled";
-export const failedImportButtonClass = "btn btn-danger w-50 disabled";
+export const failedImportButtonClass = "btn btn-danger disabled";
