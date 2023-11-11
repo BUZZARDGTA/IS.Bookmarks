@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   retryButton.addEventListener("click", async function () {
-    await extensionMessageSender("retryButton");
+    await extensionMessageSender("retryButton", jsonISDatabaseAPI);
   });
 
   settingsButton.addEventListener("click", async function () {
