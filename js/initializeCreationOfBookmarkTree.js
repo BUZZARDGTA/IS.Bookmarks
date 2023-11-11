@@ -93,7 +93,19 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
   }
 
   const formattedDate = formatDate();
-  const createBookmarkTreeResponse = await createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation, formattedDate);
+
+  let createBookmarkTreeResponse;
+  try {
+    createBookmarkTreeResponse = await createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation, formattedDate);
+  } catch (error) {
+    if (error.message === "parentGuid must be valid") {
+      extensionMessageSender(failureImportingISdatabase, {
+        reason: "Bookmark Error: An error occured while creating a bookmark.",
+      });
+      return;
+    }
+    console.error(error);
+  }
 
   if (createBookmarkTreeResponse === successImportingISdatabase) {
     await saveSettings({
