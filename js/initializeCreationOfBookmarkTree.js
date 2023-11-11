@@ -98,13 +98,19 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
   try {
     createBookmarkTreeResponse = await createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation, formattedDate);
   } catch (error) {
-    if (error.message === "parentGuid must be valid") {
-      extensionMessageSender(failureImportingISdatabase, {
-        reason: "Bookmark Error: An error occured while creating a bookmark.",
-      });
-      return;
+    switch (error.message) {
+      case "parentGuid must be valid":
+        extensionMessageSender(failureImportingISdatabase, {
+          reason: "Bookmark Error: An error occured while creating a bookmark.",
+        });
+        return;
+      default:
+        console.error(error);
+        extensionMessageSender(failureImportingISdatabase, {
+          reason: "Bookmark Error: An error occured while processing the creation of a bookmark.",
+        });
+        return;
     }
-    console.error(error);
   }
 
   if (createBookmarkTreeResponse === successImportingISdatabase) {
