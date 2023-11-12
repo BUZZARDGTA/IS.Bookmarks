@@ -19,8 +19,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   const responseISDatabaseAPI = await makeWebRequest(urlISDatabaseAPI);
   if (isResponseUp(responseISDatabaseAPI)) {
-    jsonISDatabaseAPI = await responseISDatabaseAPI.json();
-    const commitDate = jsonISDatabaseAPI[0].commit.committer.date;
+    [jsonISDatabaseAPI] = await responseISDatabaseAPI.json();
+    const commitDate = jsonISDatabaseAPI.commit.committer.date;
 
     const formattedDate = formatDate(commitDate);
     ISDbLastUpdatedDate.innerText = formattedDate;

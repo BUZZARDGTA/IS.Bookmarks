@@ -2,7 +2,7 @@ export const urlISDatabaseAPI = "https://api.github.com/repos/Illegal-Services/I
 export const urlRawISDatabase = "https://raw.githubusercontent.com/Illegal-Services/IS.Bookmarks/extra/IS.bookmarks.json";
 
 export const defaultBookmarkSaveLocation = "toolbar_____";
-export const illegalIds = ["tags________"];
+export const illegalIds = ["root________", "tags________"];
 
 export const successImportingISdatabase = "Completed";
 export const stopImportingISdatabase = "Stopped";

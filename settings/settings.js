@@ -92,8 +92,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     let bookmark;
     try {
-      const bookmarkInfo = await browser.bookmarks.get(bookmarkFolderIdInput.value);
-      bookmark = bookmarkInfo[0];
+      [bookmark] = await browser.bookmarks.get(bookmarkFolderIdInput.value);
     } catch (error) {
       const textError = `The specified [bookmark_folder_id: ${bookmarkFolderIdInput.value}] does not exist in your bookmarks tree.`;
       console.error(error);

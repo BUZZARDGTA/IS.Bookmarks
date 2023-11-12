@@ -1,10 +1,11 @@
-import { urlISDatabaseAPI, urlRawISDatabase, successImportingISdatabase, failureImportingISdatabase, stopImportingISdatabase } from "./constants.js";
+import { urlISDatabaseAPI, urlRawISDatabase, successImportingISdatabase, failureImportingISdatabase, stopImportingISdatabase, defaultBookmarkSaveLocation } from "./constants.js";
+import { saveSettings } from "./saveSettings.js";
+import { retrieveSettings } from "./retrieveSettings.js";
 import { makeWebRequest } from "./makeWebRequest.js";
 import { isResponseUp } from "./isResponseUp.js";
-import { retrieveSettings } from "./retrieveSettings.js";
-import { extensionMessageSender } from "./extensionMessageSender.js";
-import { saveSettings } from "./saveSettings.js";
 import { formatDate } from "./formatDate.js";
+import { extensionMessageSender } from "./extensionMessageSender.js";
+import { isSaveBookmarkFolderIdIllegal } from "./isSaveBookmarkFolderIdIllegal.js";
 
 export { initializeCreationOfBookmarkTree };
 
@@ -17,12 +18,14 @@ browser.runtime.onMessage.addListener((message) => {
 });
 
 /**
- * Function that initialize the creation of the {@link createBookmarkTree} from: {@link urlISDatabaseAPI `IS.bookmarks.json`}.
- * @param {string} updateType - The string which tells which method has been used to start the importation of the bookmarks.
- * @param {JSON | undefined} jsonISDatabaseAPI - The web request JSON; can be `undefined` if the request has not been done already.
- * @returns A promise that resolves when the bookmarks have been imported, indicating {@link successImportingISdatabase success} or {@link failureImportingISdatabase failure}; can also be `undefined` if no update was required.
+ * Function that initializes the creation of the bookmark tree from the IS.bookmarks.json URL.
+ * @param {object} params - An object containing the parameters.
+ * @param {string} params.updateType - The string which tells which method has been used to start the importation of the bookmarks.
+ * @param {object} [params.jsonISDatabaseAPI] - The web request JSON; can be `undefined` if the request has not been done already.
+ * @param {string} [params.bookmarkSaveLocation] - The {@link https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/BookmarkTreeNode#id `bookmark id`}, where we start importing the bookmarks.
+ * @returns {Promise} A promise that resolves when the bookmarks have been imported, indicating success or failure; can also be `undefined` if no update was required.
  */
-async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
+async function initializeCreationOfBookmarkTree({ updateType, jsonISDatabaseAPI, bookmarkSaveLocation }) {
   stopImport = false;
 
   if (jsonISDatabaseAPI === undefined) {
@@ -33,10 +36,10 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
       });
       return;
     }
-    jsonISDatabaseAPI = await responseISDatabaseAPI.json();
+    [jsonISDatabaseAPI] = await responseISDatabaseAPI.json();
   }
 
-  const fetchedSHA = jsonISDatabaseAPI[0].sha;
+  const fetchedSHA = jsonISDatabaseAPI.sha;
   const { settingISDatabaseSHA } = await retrieveSettings("settingISDatabaseSHA");
 
   // prettier-ignore
@@ -80,23 +83,57 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
 
   bookmarkDb = bookmarkDb.slice(1); // Slice the very first array which contains the "Bookmarks Toolbar" folder
 
-  const { settingBookmarkSaveLocation } = await retrieveSettings("settingBookmarkSaveLocation");
+  if (!bookmarkSaveLocation) {
+    bookmarkSaveLocation = (await retrieveSettings("settingBookmarkSaveLocation")).settingBookmarkSaveLocation;
+  }
+
+  let bookmarkSaveLocationInfo, bookmarkFolderSaveLocationId, bookmarkFolderSaveLocationIndex;
+  try {
+    [bookmarkSaveLocationInfo] = await browser.bookmarks.get(bookmarkSaveLocation);
+  } catch (error) {
+    console.error(error);
+    if (error.message == "Bookmark not found") {
+      await saveSettings({ settingBookmarkSaveLocation: defaultBookmarkSaveLocation });
+      return initializeCreationOfBookmarkTree({ updateType, jsonISDatabaseAPI });
+    }
+    extensionMessageSender(failureImportingISdatabase, {
+      reason: "Get Bookmark: Error while getting informations from 'settingBookmarkSaveLocation' setting.",
+    });
+    return;
+  }
+
+  // prettier-ignore
+  if (
+    bookmarkSaveLocationInfo.type === "folder"
+    && isSaveBookmarkFolderIdIllegal(bookmarkSaveLocationInfo.parentId)
+  ) {
+    bookmarkFolderSaveLocationId = bookmarkSaveLocation;
+    bookmarkFolderSaveLocationIndex = 0;
+  } else {
+    bookmarkFolderSaveLocationId = bookmarkSaveLocationInfo.parentId;
+    bookmarkFolderSaveLocationIndex = bookmarkSaveLocationInfo.index;
+  }
 
   // Removes previous "Illegal Services" bookmark folder(s), only those in the same depth as the previous one... before creating the new bookmark
   const bookmarksSearch = await browser.bookmarks.search({ title: "Illegal Services" });
   // prettier-ignore
   for (const folder of bookmarksSearch.filter(bookmark =>
     bookmark.type === "folder"
-    && bookmark.parentId === settingBookmarkSaveLocation
+    && bookmark.parentId === bookmarkFolderSaveLocationId
   )) {
     await browser.bookmarks.removeTree(folder.id);
+    if (folder.index < bookmarkFolderSaveLocationIndex) {
+      if (bookmarkFolderSaveLocationIndex > 0) {
+        bookmarkFolderSaveLocationIndex--; // Because we just deleted the index above which was the deleted "Illegal Services" folder
+      }
+    }
   }
 
   const formattedDate = formatDate();
 
   let createBookmarkTreeResponse;
   try {
-    createBookmarkTreeResponse = await createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation, formattedDate);
+    createBookmarkTreeResponse = await createBookmarkTree(bookmarkDb, bookmarkFolderSaveLocationId, bookmarkFolderSaveLocationIndex, formattedDate);
   } catch (error) {
     switch (error.message) {
       case "parentGuid must be valid":
@@ -126,11 +163,11 @@ async function initializeCreationOfBookmarkTree(updateType, jsonISDatabaseAPI) {
 /**
  * Function that creates the bookmark tree initiallized from the {@link initializeCreationOfBookmarkTree `initializeCreationOfBookmarkTree`} function.
  * @param {Array} bookmarkDb - The database that contains all the bookmarks to be created.
- * @param {string} settingBookmarkSaveLocation - The {@link https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/BookmarkTreeNode#id `bookmark folder id`}, where we start importing the bookmarks.
+ * @param {string} bookmarkFolderSaveLocationId - The {@link https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/bookmarks/BookmarkTreeNode#id `bookmark folder id`}, where we start importing the bookmarks.
  * @param {string} formattedDate - The formatted date from when we started importing the bookmarks.
  * @returns A promise that resolves when the bookmark tree has been successfully created.
  */
-async function createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation, formattedDate) {
+async function createBookmarkTree(bookmarkDb, bookmarkFolderSaveLocationId, bookmarkFolderSaveLocationIndex, formattedDate) {
   /**
    * Function that decodes HTML entities from a given string.
    *
@@ -169,10 +206,11 @@ async function createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation, forma
   function createBookmark(index, parentId, title, type, url) {
     return browser.bookmarks.create({ index, parentId, title, type, url });
   }
-
-  const parentStack = [settingBookmarkSaveLocation]; // Start with the 'settingBookmarkSaveLocation' as the initial parent
+  const parentStack = [bookmarkFolderSaveLocationId]; // Start with the 'bookmarkFolderSaveLocationId' as the initial parent
   const total = bookmarkDb.length - 1; // Removes -1 because 'index' starts from 0
   const enumeratedDb = bookmarkDb.map((value, index) => [index, value]);
+
+  let bookmarkIndex;
 
   for (const [index, entry] of enumeratedDb) {
     if (stopImport) {
@@ -196,16 +234,22 @@ async function createBookmarkTree(bookmarkDb, settingBookmarkSaveLocation, forma
 
     // DEBUG: console.log(parentStack, parentId, parentStack.length, depth, type, entry[2], entry[3]);
 
+    if (index === 0) {
+      bookmarkIndex = bookmarkFolderSaveLocationIndex;
+    } else {
+      bookmarkIndex = undefined;
+    }
+
     if (type === "FOLDER") {
       const title = decodeHtmlEntityEncoding(entry[2]);
-      const newFolder = await createBookmark(undefined, parentId, title, "folder", undefined);
+      const newFolder = await createBookmark(bookmarkIndex, parentId, title, "folder", undefined);
       parentStack.push(newFolder.id); // Use the ID of the newly created folder
     } else if (type === "LINK") {
       const url = entry[2];
       const title = decodeHtmlEntityEncoding(entry[3]);
-      await createBookmark(undefined, parentId, title, "bookmark", url);
+      await createBookmark(bookmarkIndex, parentId, title, "bookmark", url);
     } else if (type === "HR") {
-      await createBookmark(undefined, parentId, undefined, "separator", undefined);
+      await createBookmark(bookmarkIndex, parentId, undefined, "separator", undefined);
     }
   }
 

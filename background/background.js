@@ -14,21 +14,21 @@ browser.runtime.onInstalled.addListener(async (details) => {
       settingBookmarkSaveLocation: defaultBookmarkSaveLocation,
     });
 
-    return initializeCreationOfBookmarkTree(details.reason);
+    return initializeCreationOfBookmarkTree({ updateType: details.reason });
   }
 });
 
 // Add an event listener for the 'onStartup' event, which means it will run when Firefox starts up or when a new browser window is opened
 browser.runtime.onStartup.addListener(async function () {
   if ((await retrieveSettings("updateBookmarksAtBrowserStartup")).updateBookmarksAtBrowserStartup !== false) {
-    return initializeCreationOfBookmarkTree("startup");
+    return initializeCreationOfBookmarkTree({ updateType: "startup" });
   }
 });
 
 // Listen for incoming messages from the extension's UI 'import' or 'retry' buttons pressed
 browser.runtime.onMessage.addListener((message) => {
   if (["importButton", "retryButton"].includes(message.action)) {
-    return initializeCreationOfBookmarkTree(message.action, message.payload);
+    return initializeCreationOfBookmarkTree({ updateType: message.action, jsonISDatabaseAPI: message.payload });
   }
 });
 
@@ -64,15 +64,14 @@ childMenuItems.forEach((menuItem) => {
 });
 
 // Best regards, code below was partially taken from this amazing project: https://addons.mozilla.org/firefox/addon/open-bookmarks-slowly/
-browser.menus.onShown.addListener(async function onShown(info) {
+browser.menus.onShown.addListener(async function (info) {
   if (!info.contexts.includes("bookmark")) {
     return;
   }
 
   let bookmark;
   try {
-    const bookmarkInfo = await browser.bookmarks.get(info.bookmarkId);
-    bookmark = bookmarkInfo[0];
+    [bookmark] = await browser.bookmarks.get(info.bookmarkId);
   } catch (error) {
     console.error(error);
     return;
@@ -84,29 +83,30 @@ browser.menus.onShown.addListener(async function onShown(info) {
   }
 
   browser.menus.update("database-actions", {
-    visible: bookmark.type === "folder",
+    visible: true,
   });
   browser.menus.refresh();
 });
 
-browser.menus.onClicked.addListener(function (info, tab) {
-  browser.bookmarks.get(info.bookmarkId, async function (bookmarkNodes) {
-    const bookmark = bookmarkNodes[0];
-    if (bookmark.type !== "folder") {
-      browser.menus.remove("database-actions");
+browser.menus.onClicked.addListener(async function (info, tab) {
+  let bookmark;
+  try {
+    [bookmark] = await browser.bookmarks.get(info.bookmarkId);
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+
+  switch (info.menuItemId) {
+    case "set-database-folder":
+      await saveSettings({
+        settingBookmarkSaveLocation: info.bookmarkId,
+      });
       return;
-    }
-    switch (info.menuItemId) {
-      case "set-database-folder":
-        await saveSettings({
-          settingBookmarkSaveLocation: info.bookmarkId,
-        });
-        break;
-      case "import-database":
-        await initializeCreationOfBookmarkTree("menu-action-import-database");
-        break;
-      default:
-        break;
-    }
-  });
+    case "import-database":
+      initializeCreationOfBookmarkTree({ updateType: "menu-action-import-database", bookmarkSaveLocation: info.bookmarkId });
+      return;
+    default:
+      return;
+  }
 });
