@@ -1,1 +1,4 @@
 .devfolder/
+.prettierignore
+.prettierrc.json
+compile.bat
